@@ -10,8 +10,9 @@ Definir o esquema do PostgreSQL e o seed. Não contém lógica de aplicação: o
 |---|---|
 | `init/000-test-database.sql` | Cria o banco `climafacil_test`, usado só pelos testes de API |
 | `init/001-schema.sql` | Esquema do mínimo obrigatório: `clients`, `quotes` e `follow_ups`, com índices nas chaves estrangeiras |
+| `init/002-seed.sql` | Dados fictícios: 8 clientes, 16 orçamentos em todos os status e 16 follow-ups |
 
-O seed (`init/002-seed.sql`) ainda não existe: entra na issue #2 (AGENTS.md §1, etapa 1).
+O seed usa datas relativas a `CURRENT_DATE` e cobre: orçamento enviado há muito tempo sem follow-up, enviado há muito com follow-up antigo, enviado há pouco, enviado com follow-up recente e últimos contatos a 7, 14 e 15 dias. Os orçamentos encontram o cliente pelo nome e os follow-ups encontram o orçamento pela descrição (ambos únicos no seed), sem depender de ids fixos. Diego Ferreira e Fábio Rocha têm e-mail e/ou telefone nulos de propósito, para cobrir campos opcionais ausentes.
 
 ## Como se conecta
 - **É usado por:** o serviço `db` do `docker-compose.yml`, que monta `init/` em `/docker-entrypoint-initdb.d`.
