@@ -1,0 +1,29 @@
+# Database now; the server and web services join in steps 2 to 5 (AGENTS.md §1).
+# Variables come from the root .env (see .env.example); without it, the defaults below apply.
+name: climafacil
+
+services:
+  db:
+    image: postgres:16
+    container_name: climafacil-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-climafacil}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-climafacil}
+      POSTGRES_DB: ${POSTGRES_DB:-climafacil}
+      TZ: America/Sao_Paulo
+      PGTZ: America/Sao_Paulo
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Run in alphabetical order, only when the volume is created (AGENTS.md §5.5).
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
