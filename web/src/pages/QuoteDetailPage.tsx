@@ -47,7 +47,8 @@ export function QuoteDetailPage({ id }: { id: number }) {
               </dl>
             </div>
             <StatusChangeForm quote={data} onChanged={quote.reload} />
-            <FollowUpForm quoteId={data.id} onSaved={handleFollowUpSaved} />
+            {/* Keyed by status so an error about the old status does not outlive a status change. */}
+            <FollowUpForm key={data.status} quoteId={data.id} onSaved={handleFollowUpSaved} />
             <div>
               <h2 className="mb-3 text-lg font-semibold">Histórico de contatos</h2>
               <FollowUpHistory state={followUps} />

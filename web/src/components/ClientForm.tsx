@@ -32,7 +32,11 @@ export function ClientForm({ onSaved, onCancel }: ClientFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 space-y-4 rounded-md bg-white p-4 shadow-sm">
+    <form
+      noValidate
+      onSubmit={handleSubmit}
+      className="mb-6 space-y-4 rounded-md bg-white p-4 shadow-sm"
+    >
       <h2 className="text-lg font-semibold">Novo cliente</h2>
       {message && (
         <p role="alert" className="rounded-md bg-red-50 p-3 text-red-800">
