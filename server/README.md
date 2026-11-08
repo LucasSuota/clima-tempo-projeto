@@ -1,37 +1,42 @@
 # server
 
-> API do ClimaFácil (Express 5 + TypeScript `strict`, SQL puro com `pg`, `zod`). Hoje tem o esqueleto (`GET /api/health`), as regras de domínio puras e o primeiro recurso completo, `owners` (`GET`/`POST /api/owners`); os demais recursos ainda não existem.
+> API do ClimaFácil (Express 5 + TypeScript `strict`, SQL puro com `pg`, `zod`). Hoje tem o esqueleto (`GET /api/health`), as regras de domínio puras e dois recursos completos, `owners` e `clients` (`GET`/`POST` em `/api/owners` e `/api/clients`); os demais recursos ainda não existem.
 
 ## Responsabilidade
 
 Sobe o servidor HTTP, valida o ambiente, monta o Express e traduz erros para o formato único da API (AGENTS.md §5.3).
-As regras de negócio vivem em `src/domain/` (funções puras, sem I/O; veja [src/domain/README.md](src/domain/README.md)). O recurso `owners` percorre todas as camadas (rota, serviço, repositório, domínio); os outros recursos entram nas próximas issues (AGENTS.md §1, etapa 2).
+As regras de negócio vivem em `src/domain/` (funções puras, sem I/O; veja [src/domain/README.md](src/domain/README.md)). Os recursos `owners` e `clients` percorrem todas as camadas (rota, serviço, repositório, domínio); os outros recursos entram nas próximas issues (AGENTS.md §1, etapa 2).
 
 ## O que tem aqui
 
-| Arquivo                                                                  | Papel                                                                                                                                                               |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/index.ts`                                                           | Carrega a config, cria o Pool e o app, chama `listen` e encerra com `SIGINT`/`SIGTERM`.                                                                             |
-| `src/app.ts`                                                             | `createApp({ pool })`: compõe repositório e serviço de `owners`, monta `apiRouter` em `/api`, 404 e handler de erros. Não chama `listen`.                           |
-| `src/config.ts`                                                          | `loadConfig(env)`: valida as variáveis com zod e devolve `Config` (inclui `staleDays`); lança erro se `DATABASE_URL` faltar ou `PORT`/`STALE_DAYS` forem inválidas. |
-| `src/db.ts`                                                              | `createPool(connectionString)`: cria o `Pool` do `pg`.                                                                                                              |
-| `src/errors.ts`                                                          | `DomainError`, `ValidationError`, `InvalidStatusTransitionError` e `FollowUpNotAllowedError` (todos 422; a tradução para HTTP fica em `middlewares/`).              |
-| `src/domain/`                                                            | Regras puras: datas, status, orçamento, follow-up, parado e indicadores. Detalhes em `src/domain/README.md`.                                                        |
-| `src/middlewares/error-handler.ts`                                       | `notFoundHandler` (404) e `errorHandler` (422 para zod e JSON malformado, 500 genérico).                                                                            |
-| `src/routes/index.ts`                                                    | `apiRouter({ pool, ownerService })`: monta os routers de recurso; `app.ts` o usa em `/api`.                                                                         |
-| `src/routes/owners.ts`                                                   | `ownersRouter(service)`: `GET` e `POST /api/owners`; schema zod de entrada (`name` e `role` obrigatórios, aparados).                                                |
-| `src/services/owner-service.ts`                                          | `createOwnerService(repository)`: `listOwners()` devolve `{ items, total }`; `createOwner(input)`.                                                                  |
-| `src/repositories/owner-repository.ts`                                   | `createOwnerRepository(pool)`: `findAll()` (ordem `name, id`) e `insert()`; converte o `id` (bigint como string) para número.                                       |
-| `src/domain/owners/owner.ts`                                             | Tipos `Owner` e `NewOwner`.                                                                                                                                         |
-| `src/routes/health.ts`                                                   | `healthRouter(pool)`: `GET /api/health` roda `SELECT 1` e responde `{ "ok": true }`.                                                                                |
-| `test/config.test.ts`                                                    | Valida `loadConfig` (sem banco).                                                                                                                                    |
-| `test/middlewares/error-handler.test.ts`                                 | `errorHandler` e `notFoundHandler` (sem banco).                                                                                                                     |
-| `test/domain/`                                                           | Testes unitários do domínio (sem banco), espelhando `src/domain/`.                                                                                                  |
-| `test/routes/health.test.ts`                                             | API com supertest e banco de teste.                                                                                                                                 |
-| `test/routes/owners.test.ts`                                             | API de `owners` com supertest: listagem, criação, 422 e formato de erro.                                                                                            |
-| `test/helpers/test-database.ts`                                          | `createTestPool()` (lê só `DATABASE_URL_TEST`), `resetTestSchema(pool)` e `clearTables(pool)`.                                                                      |
-| `vitest.config.ts`                                                       | Carrega `../.env` e desliga o paralelismo entre arquivos (um banco de teste só).                                                                                    |
-| `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas; `tsconfig.build.json` gera `dist/`.                                                                                                          |
+| Arquivo                                                                  | Papel                                                                                                                                                                           |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.ts`                                                           | Carrega a config, cria o Pool e o app, chama `listen` e encerra com `SIGINT`/`SIGTERM`.                                                                                         |
+| `src/app.ts`                                                             | `createApp({ pool })`: compõe repositório e serviço de `owners` e `clients`, monta `apiRouter` em `/api`, 404 e handler de erros. Não chama `listen`.                           |
+| `src/config.ts`                                                          | `loadConfig(env)`: valida as variáveis com zod e devolve `Config` (inclui `staleDays`); lança erro se `DATABASE_URL` faltar ou `PORT`/`STALE_DAYS` forem inválidas.             |
+| `src/db.ts`                                                              | `createPool(connectionString)`: cria o `Pool` do `pg`.                                                                                                                          |
+| `src/errors.ts`                                                          | `DomainError`, `ValidationError`, `InvalidStatusTransitionError` e `FollowUpNotAllowedError` (todos 422; a tradução para HTTP fica em `middlewares/`).                          |
+| `src/domain/`                                                            | Regras puras: datas, status, orçamento, follow-up, parado e indicadores. Detalhes em `src/domain/README.md`.                                                                    |
+| `src/middlewares/error-handler.ts`                                       | `notFoundHandler` (404) e `errorHandler` (422 para zod e JSON malformado, 500 genérico).                                                                                        |
+| `src/routes/index.ts`                                                    | `apiRouter({ pool, ownerService, clientService })`: monta os routers de recurso; `app.ts` o usa em `/api`.                                                                      |
+| `src/routes/owners.ts`                                                   | `ownersRouter(service)`: `GET` e `POST /api/owners`; schema zod de entrada (`name` e `role` obrigatórios, aparados).                                                            |
+| `src/routes/clients.ts`                                                  | `clientsRouter(service)`: `GET` e `POST /api/clients`; schema zod com normalização de `name`, `email` e `phone`.                                                                |
+| `src/services/client-service.ts`                                         | `createClientService(repository)`: `listClients()` devolve `{ items, total }`; `createClient(input)`.                                                                           |
+| `src/repositories/client-repository.ts`                                  | `createClientRepository(pool)`: `findAll()` (ordem `name, id`), `insert()` (traduz `23505` em `clients_email_key`/`clients_phone_key` para `ValidationError`) e `existsById()`. |
+| `src/domain/clients/client.ts`                                           | Tipos `Client` e `NewClient`.                                                                                                                                                   |
+| `test/routes/clients.test.ts`                                            | API de `clients` com supertest: listagem, criação, normalização, duplicidade e 422.                                                                                             |
+| `src/services/owner-service.ts`                                          | `createOwnerService(repository)`: `listOwners()` devolve `{ items, total }`; `createOwner(input)`.                                                                              |
+| `src/repositories/owner-repository.ts`                                   | `createOwnerRepository(pool)`: `findAll()` (ordem `name, id`) e `insert()`; converte o `id` (bigint como string) para número.                                                   |
+| `src/domain/owners/owner.ts`                                             | Tipos `Owner` e `NewOwner`.                                                                                                                                                     |
+| `src/routes/health.ts`                                                   | `healthRouter(pool)`: `GET /api/health` roda `SELECT 1` e responde `{ "ok": true }`.                                                                                            |
+| `test/config.test.ts`                                                    | Valida `loadConfig` (sem banco).                                                                                                                                                |
+| `test/middlewares/error-handler.test.ts`                                 | `errorHandler` e `notFoundHandler` (sem banco).                                                                                                                                 |
+| `test/domain/`                                                           | Testes unitários do domínio (sem banco), espelhando `src/domain/`.                                                                                                              |
+| `test/routes/health.test.ts`                                             | API com supertest e banco de teste.                                                                                                                                             |
+| `test/routes/owners.test.ts`                                             | API de `owners` com supertest: listagem, criação, 422 e formato de erro.                                                                                                        |
+| `test/helpers/test-database.ts`                                          | `createTestPool()` (lê só `DATABASE_URL_TEST`), `resetTestSchema(pool)` e `clearTables(pool)`.                                                                                  |
+| `vitest.config.ts`                                                       | Carrega `../.env` e desliga o paralelismo entre arquivos (um banco de teste só).                                                                                                |
+| `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas; `tsconfig.build.json` gera `dist/`.                                                                                                                      |
 
 ## Estrutura-alvo
 
@@ -58,11 +63,13 @@ Regras:
 
 ## Como se conecta
 
-- **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `middlewares/error-handler.ts`, `routes/index.ts`, `services/owner-service.ts` e `repositories/owner-repository.ts`; `routes/owners.ts` → `services/owner-service.ts` → `repositories/owner-repository.ts` → `domain/owners/owner.ts`; `middlewares/error-handler.ts` importa `errors.ts`; `domain/` importa só a si mesmo e `errors.ts` (nenhum import de `express`, `pg` ou `config.ts`).
+- **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `middlewares/error-handler.ts`, `routes/index.ts`, os serviços e os repositórios de `owners` e `clients`; `routes/owners.ts` → `services/owner-service.ts` → `repositories/owner-repository.ts` → `domain/owners/owner.ts`; `routes/clients.ts` → `services/client-service.ts` → `repositories/client-repository.ts` → `domain/clients/client.ts` (o repositório também importa `ValidationError` de `errors.ts`); `middlewares/error-handler.ts` importa `errors.ts`; `domain/` importa só a si mesmo e `errors.ts` (nenhum import de `express`, `pg` ou `config.ts`).
 - **É usado por:** nada ainda no repositório (o `web/` consumirá `/api` na etapa 4).
-- **Contratos e dados:** `GET /api/health`; erro sempre `{ "detail", "errors": [{ "field", "message" }] }`. Tabela `owners`.
+- **Contratos e dados:** `GET /api/health`; erro sempre `{ "detail", "errors": [{ "field", "message" }] }`. Tabelas `owners` e `clients`.
   - `GET /api/owners`: 200 com `{ "items": [{ "id", "name", "role" }], "total" }`, ordenado por nome. `id` é `number`.
   - `POST /api/owners`: corpo `{ "name", "role" }` (`name` até 120 caracteres, `role` até 80, ambos obrigatórios e aparados); 201 com o responsável criado; 422 com o formato de erro único se inválido.
+  - `GET /api/clients`: 200 com `{ "items": [{ "id", "name", "email", "phone" }], "total" }`, ordenado por `name`, `id`. `id` é `number`; `email` e `phone` podem ser `null`.
+  - `POST /api/clients`: corpo `{ "name", "email?", "phone?" }`; 201 com o cliente criado. `name` obrigatório, aparado, até 120. `email`: ausente, `null` ou `''` vira `null`; senão aparado, em minúsculas, até 254 e válido. `phone`: ausente, `null` ou `''` vira `null`; aceita só `0-9`, espaço, `(`, `)`, `+` e `-`, é gravado só com dígitos e deve ter de 10 a 15. E-mail ou telefone repetido: 422 com `"E-mail já cadastrado"` / `"Telefone já cadastrado"` no campo correspondente.
 - **Variáveis de ambiente** (lidas de `../.env`): `DATABASE_URL` (obrigatória), `DATABASE_URL_TEST` (só testes de API), `PORT` (padrão `3333`), `CORS_ORIGIN` (lida, ainda sem uso), `STALE_DAYS` (padrão `7`, mínimo `1`; vira `Config.staleDays`, ainda não consumida por serviço).
 
 ## Decisões que moldam este código
@@ -74,13 +81,16 @@ Regras:
 - "Hoje" e `staleDays` entram por parâmetro no domínio; nada lê relógio nem env (AGENTS.md §5.2, §8).
 - `no_response` é derivado na leitura: só um `sent` parado vira `no_response` (`effectiveStatus`); não é gravado por job.
 - O domínio não faz aritmética de dinheiro: `total` é string decimal vinda do `NUMERIC`; somas ficam no SQL (AGENTS.md §5.5).
+- A normalização de `clients` acontece na rota (zod), antes do banco: o `UNIQUE` de `email` e `phone` compara o texto exato, então só e-mail em minúsculas e telefone só com dígitos fazem a duplicidade valer de verdade.
+- A duplicidade vem da constraint (`23505`), sem checagem prévia, para não haver corrida entre inserts concorrentes; o repositório a traduz em `ValidationError` (422).
+- `ClientRepository.existsById` ainda não é usado por nenhum serviço: está reservado à issue #6 (orçamentos) para validar `clientId`.
 - Exige Node `^22.13 || ^24 || >=26` (`engines` no `package.json`), por causa do Vitest 5 e do ESLint 10.
 
 ## Como testar
 
 Banco no ar (`docker compose up -d db`) e `.env` criado (`cp .env.example .env`).
 
-- `npm --prefix server run test`: Vitest. Os testes de API (`routes/health.test.ts`, `routes/owners.test.ts`) usam `DATABASE_URL_TEST` e falham de propósito se ela não existir; nunca usam o banco de dev (AGENTS.md §8).
+- `npm --prefix server run test`: Vitest. Os testes de API (`routes/health.test.ts`, `routes/owners.test.ts`, `routes/clients.test.ts`) usam `DATABASE_URL_TEST` e falham de propósito se ela não existir; nunca usam o banco de dev (AGENTS.md §8).
 - Os testes de API recriam o esquema do `climafacil_test` (`resetTestSchema`: recusa banco cujo nome não termine em `_test`, recria o schema `public` a partir de `db/init/001-schema.sql`) e limpam as tabelas (`clearTables`) entre os testes.
 - `npm --prefix server run check`: `typecheck` + `lint` + `format:check` + `test`.
 - Outros scripts: `dev`, `build`, `start`, `typecheck`, `lint`, `format`, `format:check`. Primeira vez: `npm --prefix server install`.
