@@ -8,7 +8,7 @@ Definir o esquema do PostgreSQL e o seed. Não contém lógica de aplicação: o
 ## O que tem aqui
 | Arquivo | Papel |
 |---|---|
-| `init/000-test-database.sql` | Cria o banco `climafacil_test`, usado só pelos testes de API |
+| `init/000-test-database.sql` | Cria o banco `climafacil_test`, usado só pelos testes de API; nasce vazio, sem esquema |
 | `init/001-schema.sql` | Esquema do mínimo obrigatório: `clients`, `owners`, `quotes` e `follow_ups`, com índices nas chaves estrangeiras |
 | `init/002-seed.sql` | Dados fictícios: 8 clientes, 3 responsáveis, 16 orçamentos em todos os status (cada um com responsável) e 16 follow-ups |
 
@@ -25,5 +25,6 @@ O seed usa datas relativas a `CURRENT_DATE` e cobre: orçamento enviado há muit
 - `owners.role` é texto livre (`NOT NULL`, sem `CHECK` nem tabela de apoio): é o cargo exibido na tela.
 - Apagar um responsável (ou cliente) que tenha orçamentos é bloqueado pela FK, sem `ON DELETE`.
 - `quotes.owner_id` é `NOT NULL`: seed e testes futuros precisam criar um `owner` antes de qualquer `quote`.
+- `climafacil_test` nasce vazio: os testes de API aplicam o esquema (`server/test/helpers/test-database.ts`), e o setup recria o schema `public` desse banco a partir de `init/001-schema.sql`.
 - Só dados fictícios no seed.
 - Erro num script aborta a inicialização: confira com `docker compose logs db`.
