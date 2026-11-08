@@ -11,38 +11,44 @@ INSERT INTO clients (name, email, phone) VALUES
     ('Gisele Alves',        'gisele.alves@example.com',  '(11) 90000-0007'),
     ('Hélio Barros',        'helio.barros@example.com',  '(11) 90000-0008');
 
--- Clients and quote descriptions are unique on purpose: quotes find their client by name,
+INSERT INTO owners (name, role) VALUES
+    ('Marina Costa',        'Vendedora'),
+    ('Rafael Teixeira',     'Gerente comercial'),
+    ('Paulo Nogueira',      'Técnico responsável');
+
+-- Clients, owners and quote descriptions are unique on purpose: quotes find their client and owner by name,
 -- follow-ups find their quote by description. Some clients have no email/phone (nullable) to cover missing data.
-INSERT INTO quotes (client_id, description, total, status, sent_at)
-SELECT clients.id, new_quotes.description, new_quotes.total, new_quotes.status, new_quotes.sent_at
+INSERT INTO quotes (client_id, owner_id, description, total, status, sent_at)
+SELECT clients.id, owners.id, new_quotes.description, new_quotes.total, new_quotes.status, new_quotes.sent_at
 FROM (VALUES
     -- draft: never sent
-    ('Ana Souza', 'Instalação de split 12000 BTUs na sala',       2850.00, 'draft',       NULL::date),
+    ('Ana Souza', 'Marina Costa', 'Instalação de split 12000 BTUs na sala',       2850.00, 'draft',       NULL::date),
     -- sent long ago, no follow-up at all (stale)
-    ('Ana Souza', 'Manutenção preventiva de 3 aparelhos',          690.00, 'sent',        CURRENT_DATE - 45),
+    ('Ana Souza', 'Marina Costa', 'Manutenção preventiva de 3 aparelhos',          690.00, 'sent',        CURRENT_DATE - 45),
     -- sent long ago, only an old follow-up (stale)
-    ('Bruno Lima', 'Split inverter 18000 BTUs no escritório',      4200.00, 'sent',        CURRENT_DATE - 40),
+    ('Bruno Lima', 'Rafael Teixeira', 'Split inverter 18000 BTUs no escritório',      4200.00, 'sent',        CURRENT_DATE - 40),
     -- sent 2 days ago (recent)
-    ('Bruno Lima', 'Limpeza completa de split',                     380.00, 'sent',        CURRENT_DATE - 2),
+    ('Bruno Lima', 'Marina Costa', 'Limpeza completa de split',                     380.00, 'sent',        CURRENT_DATE - 2),
     -- sent a while ago but with a recent follow-up
-    ('Carla Mendes', 'Ar-condicionado cassete para loja',           15800.00, 'sent',        CURRENT_DATE - 20),
-    ('Carla Mendes', 'Troca de compressor',                          3150.00, 'negotiating', CURRENT_DATE - 25),
+    ('Carla Mendes', 'Rafael Teixeira', 'Ar-condicionado cassete para loja',           15800.00, 'sent',        CURRENT_DATE - 20),
+    ('Carla Mendes', 'Paulo Nogueira', 'Troca de compressor',                          3150.00, 'negotiating', CURRENT_DATE - 25),
     -- edge: last contact 7 days ago
-    ('Diego Ferreira', 'Instalação de 2 splits nos quartos',           7400.00, 'sent',        CURRENT_DATE - 8),
+    ('Diego Ferreira', 'Marina Costa', 'Instalação de 2 splits nos quartos',           7400.00, 'sent',        CURRENT_DATE - 8),
     -- edge: sent 15 days ago, no follow-up
-    ('Diego Ferreira', 'Higienização de dutos',                        1950.00, 'sent',        CURRENT_DATE - 15),
-    ('Eva Martins', 'Sistema VRF para escritório',                 48900.00, 'negotiating', CURRENT_DATE - 30),
-    ('Eva Martins', 'Recarga de gás refrigerante',                   520.00, 'no_response', CURRENT_DATE - 35),
-    ('Fábio Rocha', 'Split piso-teto 36000 BTUs',                   6300.00, 'won',         CURRENT_DATE - 60),
-    ('Fábio Rocha', 'Contrato anual de manutenção',                 2400.00, 'won',         CURRENT_DATE - 90),
-    ('Gisele Alves', 'Instalação de split 9000 BTUs',                2100.00, 'lost',        CURRENT_DATE - 50),
-    ('Gisele Alves', 'Câmara fria para restaurante',                22000.00, 'no_response', CURRENT_DATE - 28),
+    ('Diego Ferreira', 'Paulo Nogueira', 'Higienização de dutos',                        1950.00, 'sent',        CURRENT_DATE - 15),
+    ('Eva Martins', 'Rafael Teixeira', 'Sistema VRF para escritório',                 48900.00, 'negotiating', CURRENT_DATE - 30),
+    ('Eva Martins', 'Paulo Nogueira', 'Recarga de gás refrigerante',                   520.00, 'no_response', CURRENT_DATE - 35),
+    ('Fábio Rocha', 'Rafael Teixeira', 'Split piso-teto 36000 BTUs',                   6300.00, 'won',         CURRENT_DATE - 60),
+    ('Fábio Rocha', 'Paulo Nogueira', 'Contrato anual de manutenção',                 2400.00, 'won',         CURRENT_DATE - 90),
+    ('Gisele Alves', 'Marina Costa', 'Instalação de split 9000 BTUs',                2100.00, 'lost',        CURRENT_DATE - 50),
+    ('Gisele Alves', 'Rafael Teixeira', 'Câmara fria para restaurante',                22000.00, 'no_response', CURRENT_DATE - 28),
     -- edge: last contact 15 days ago
-    ('Hélio Barros', 'Split 24000 BTUs para sala comercial',         5600.00, 'sent',        CURRENT_DATE - 30),
+    ('Hélio Barros', 'Paulo Nogueira', 'Split 24000 BTUs para sala comercial',         5600.00, 'sent',        CURRENT_DATE - 30),
     -- edge: last contact 14 days ago
-    ('Hélio Barros', 'Manutenção corretiva de evaporadora',           450.00, 'sent',        CURRENT_DATE - 21)
-) AS new_quotes (client_name, description, total, status, sent_at)
-JOIN clients ON clients.name = new_quotes.client_name;
+    ('Hélio Barros', 'Marina Costa', 'Manutenção corretiva de evaporadora',           450.00, 'sent',        CURRENT_DATE - 21)
+) AS new_quotes (client_name, owner_name, description, total, status, sent_at)
+JOIN clients ON clients.name = new_quotes.client_name
+JOIN owners ON owners.name = new_quotes.owner_name;
 
 INSERT INTO follow_ups (quote_id, contacted_at, description)
 SELECT quotes.id, new_follow_ups.contacted_at, new_follow_ups.description
