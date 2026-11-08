@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { useHashRoute } from './hooks/useHashRoute';
 import { ClientsPage } from './pages/ClientsPage';
 import { OwnersPage } from './pages/OwnersPage';
+import { QuotesPage } from './pages/QuotesPage';
 import type { Route } from './router';
 
 function Page({ route }: { route: Route }) {
@@ -22,8 +23,10 @@ function Page({ route }: { route: Route }) {
           }
         />
       );
-    default:
-      return <EmptyState title="Orçamentos em breve" />;
+    case 'quotes':
+      return <QuotesPage />;
+    case 'quote':
+      return <EmptyState title="Detalhe do orçamento em breve" />;
   }
 }
 
