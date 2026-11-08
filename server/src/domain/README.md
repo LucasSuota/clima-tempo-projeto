@@ -13,6 +13,7 @@ Decide status, validade de datas e valores, se um orçamento está parado e os i
 | `shared/calendar-date.ts`       | `CalendarDate` (`'YYYY-MM-DD'`), `isCalendarDate`, `daysBetween` (via UTC), `toCalendarDate` (padrão `America/Sao_Paulo`) |
 | `quotes/quote-status.ts`        | `QUOTE_STATUSES`, `ALLOWED_TRANSITIONS`, `OPEN_STATUSES`, `assertTransition`                                              |
 | `quotes/quote.ts`               | Tipos `Quote` e `NewQuoteInput`; `validateNewQuote` e `changeStatus`                                                      |
+| `quotes/quote-details.ts`       | Tipo `QuoteDetails`: leitura do orçamento com `client`, `owner` e `lastFollowUpAt` (só tipo, sem regra)                   |
 | `quotes/stale-quote.ts`         | `getLastContact`, `evaluateStaleness`, `effectiveStatus`                                                                  |
 | `follow-ups/follow-up.ts`       | Tipo `FollowUp`                                                                                                           |
 | `follow-ups/follow-up-rules.ts` | `validateFollowUp`: não aceita rascunho, data futura nem anterior ao envio                                                |
@@ -21,7 +22,7 @@ Decide status, validade de datas e valores, se um orçamento está parado e os i
 ## Como se conecta
 
 - **Depende de:** só de `../errors.ts` (`ValidationError`, `InvalidStatusTransitionError`, `FollowUpNotAllowedError`) e de si mesmo.
-- **É usado por:** só pelos testes em `server/test/domain/`; serviços ainda não existem.
+- **É usado por:** `services/quote-service.ts` e `services/follow-up-service.ts` (e `repositories/` para os tipos); também os testes em `server/test/domain/`.
 - **Contratos e dados:** `total` e `sentAt` espelham `quotes.total` (`NUMERIC(12,2)`) e `quotes.sent_at` (`date`); `STALE_DAYS` chega por `Config.staleDays`, passado pelo chamador.
 
 ## Decisões que moldam este código
