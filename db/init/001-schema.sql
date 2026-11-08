@@ -15,7 +15,7 @@ CREATE TABLE owners (
 );
 
 -- draft: not sent yet · sent: waiting for an answer · negotiating: client replied
--- no_response: sent but no reply after X days (set by the app, not by hand) · won · lost
+-- no_response: sent but no reply after X days (derived on read by the app) · won · lost
 
 CREATE TABLE quotes (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
