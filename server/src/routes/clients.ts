@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { ClientNotFoundError } from '../errors.js';
 import type { ClientService } from '../services/client-service.js';
 
 const requiredText = (max: number) =>
@@ -31,11 +32,18 @@ const phoneSchema = z
   .transform((value) => value.replace(/\D/g, ''))
   .pipe(z.string().regex(/^\d{10,15}$/, 'Deve ter de 10 a 15 dígitos'));
 
-const newClientSchema = z.object({
+// Used by both POST and PUT: an update replaces the whole client, so absent optional fields clear them.
+const clientSchema = z.object({
   name: requiredText(120),
   email: optionalText(emailSchema),
   phone: optionalText(phoneSchema),
 });
+
+function parseClientId(raw: string): number {
+  const id = Number(raw);
+  if (!/^\d+$/.test(raw) || !Number.isSafeInteger(id) || id <= 0) throw new ClientNotFoundError();
+  return id;
+}
 
 export function clientsRouter(service: ClientService): Router {
   const router = Router();
@@ -46,8 +54,19 @@ export function clientsRouter(service: ClientService): Router {
 
   router.post('/clients', async (req, res) => {
     // `?? {}` so a missing body reports the field errors instead of a generic failure.
-    const input = newClientSchema.parse(req.body ?? {});
+    const input = clientSchema.parse(req.body ?? {});
     res.status(201).json(await service.createClient(input));
+  });
+
+  router.put('/clients/:id', async (req, res) => {
+    const id = parseClientId(req.params.id);
+    const input = clientSchema.parse(req.body ?? {});
+    res.json(await service.updateClient(id, input));
+  });
+
+  router.delete('/clients/:id', async (req, res) => {
+    await service.deleteClient(parseClientId(req.params.id));
+    res.status(204).end();
   });
 
   return router;
