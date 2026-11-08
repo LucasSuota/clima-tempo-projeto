@@ -6,7 +6,9 @@ import { Button } from '../components/Button';
 import { DataTable, type Column } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
 import { OwnerForm } from '../components/OwnerForm';
-import { useAsync } from '../hooks/useAsync';
+import { Pagination } from '../components/Pagination';
+import { usePagedList } from '../hooks/usePagedList';
+import { PAGE_SIZE } from '../pagination';
 
 const COLUMNS: Column<Owner>[] = [
   { header: 'Nome', cell: (owner) => owner.name, hideLabelOnCard: true },
@@ -14,11 +16,13 @@ const COLUMNS: Column<Owner>[] = [
 ];
 
 export function OwnersPage() {
-  const owners = useAsync(listOwners);
+  const owners = usePagedList(listOwners);
   const [formOpen, setFormOpen] = useState(false);
 
   function handleSaved() {
     setFormOpen(false);
+    // A new owner sorts by name, so page 1 is the only predictable place to look for it.
+    owners.setPage(1);
     owners.reload();
   }
 
@@ -31,10 +35,18 @@ export function OwnersPage() {
       {formOpen && <OwnerForm onSaved={handleSaved} onCancel={() => setFormOpen(false)} />}
       <AsyncView state={owners}>
         {(data) =>
-          data.items.length === 0 ? (
+          data.total === 0 ? (
             <EmptyState title="Nenhum responsável cadastrado" />
           ) : (
-            <DataTable items={data.items} columns={COLUMNS} getKey={(owner) => owner.id} />
+            <>
+              <DataTable items={data.items} columns={COLUMNS} getKey={(owner) => owner.id} />
+              <Pagination
+                page={owners.page}
+                total={data.total}
+                pageSize={PAGE_SIZE}
+                onPageChange={owners.setPage}
+              />
+            </>
           )
         }
       </AsyncView>

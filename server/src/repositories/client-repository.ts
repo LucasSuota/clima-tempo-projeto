@@ -1,9 +1,11 @@
 import type { Pool } from 'pg';
 import type { Client, NewClient } from '../domain/clients/client.js';
+import { ALL_ROWS, type PageParams } from '../domain/shared/pagination.js';
 import { ClientHasQuotesError, ValidationError } from '../errors.js';
 
 export interface ClientRepository {
-  findAll(): Promise<Client[]>;
+  findAll(page?: PageParams): Promise<Client[]>;
+  count(): Promise<number>;
   insert(client: NewClient): Promise<Client>;
   update(id: number, client: NewClient): Promise<Client | undefined>;
   remove(id: number): Promise<boolean>;
@@ -53,11 +55,19 @@ function toHasQuotesError(error: unknown): ClientHasQuotesError | undefined {
 
 export function createClientRepository(pool: Pool): ClientRepository {
   return {
-    async findAll() {
+    async findAll(page = ALL_ROWS) {
       const { rows } = await pool.query<ClientRow>(
-        'SELECT id, name, email, phone FROM clients ORDER BY name, id',
+        'SELECT id, name, email, phone FROM clients ORDER BY name, id LIMIT $1 OFFSET $2',
+        [page.limit, page.offset],
       );
       return rows.map(toClient);
+    },
+
+    async count() {
+      const { rows } = await pool.query<{ total: number }>(
+        'SELECT COUNT(*)::int AS total FROM clients',
+      );
+      return (rows[0] as { total: number }).total;
     },
 
     async insert(client) {

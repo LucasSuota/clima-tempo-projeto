@@ -4,7 +4,8 @@ Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de ins
 
 O que o sistema faz:
 
-- cadastra responsáveis, clientes e orçamentos, e muda o status de cada orçamento seguindo as transições permitidas;
+- cadastra responsáveis, clientes e orçamentos (clientes e orçamentos também podem ser editados e excluídos) e muda o status de cada orçamento seguindo as transições permitidas;
+- pagina as listas de orçamentos, clientes e responsáveis (`limit` e `offset` opcionais na API);
 - registra follow-ups (contatos com o cliente) e mostra o histórico;
 - marca como **parado** o orçamento sem contato há `STALE_DAYS` dias (padrão 7) ou mais, e o status `no_response` aparece sozinho para um `sent` parado;
 - no painel inicial, mostra os indicadores (total em aberto, valor parado, taxa de conversão) e a fila "quem contatar hoje", do orçamento mais antigo sem contato para o mais recente.
@@ -159,7 +160,7 @@ As decisões de escopo e de regra de negócio estão no [AGENTS.md](AGENTS.md) (
 | `no_response` derivado na leitura, sem job agendado | O status gravado continua `sent`; o domínio calcula o **status efetivo** (um `sent` parado aparece como `no_response`) a cada leitura. Nada para agendar, e o resultado nunca fica defasado. |
 | Parado e indicadores calculados no server | O front só exibe o que a API manda (`isStale`, `daysWithoutContact`, status efetivo, indicadores). A regra existe num só lugar. |
 | Transição de status parte do status efetivo | Um `sent` parado só vai para `negotiating`, `won` ou `lost`, igual ao que o usuário vê na tela. |
-| Listagens devolvem `{ items, total }` desde o início | Se a paginação entrar, não é mudança incompatível de contrato. |
+| Listagens devolvem `{ items, total }` desde o início | A paginação (`limit` e `offset`, opcionais) entrou sem mudança incompatível de contrato. |
 | CORS próprio, sem o pacote `cors` | São poucas linhas, restritas a `CORS_ORIGIN` com comparação exata (nunca `*`), e não adiciona dependência (AGENTS.md §3.2). |
 
 ### Dados
@@ -202,13 +203,6 @@ As decisões de escopo e de regra de negócio estão no [AGENTS.md](AGENTS.md) (
 
 Também ficaram de fora, por tecnologia (AGENTS.md §3.2): ORM, biblioteca de estado global e biblioteca de componentes pesada.
 
-### Previstos como p2 e não implementados
-
-O AGENTS.md §11 os marcou como "só se sobrar tempo", e não sobrou:
-
-- **Edição e exclusão de orçamento** (issue #21): hoje só se cria o orçamento e se muda o status. Um erro de digitação em `total` ou na descrição não tem correção pela API.
-- **Paginação nas listagens** (issue #23): as listagens devolvem tudo. O formato `{ items, total }` já está pronto para recebê-la.
-
 ## Como usei IA
 
 O desenvolvimento usou assistentes de IA, organizados como agentes definidos em [agents/](agents/README.md), cada um com um papel e com o [AGENTS.md](AGENTS.md) como contexto comum:
@@ -228,7 +222,6 @@ Onde a IA errou: o primeiro esquema do banco gerado por IA exigia contato do cli
 
 ## Próximos passos
 
-- **P2 do escopo:** edição e exclusão de orçamento (#21), CRUD completo de clientes (#22) e paginação (#23).
 - **Transições de status mais claras:** o server passaria a devolver as transições permitidas de cada orçamento (`allowedTransitions`), para o front oferecer só as válidas em vez de listar todos os status e depender do 422. As mensagens de transição inválida também deveriam sair em português, com o nome do status exibido na tela (hoje o erro cita `sent`, `won` etc.).
 - **Acessibilidade dos formulários:** levar o foco ao primeiro campo com erro e ligar as mensagens aos campos com `aria-describedby`/`aria-invalid`.
 - **Autenticação:** só se o sistema deixar de ser de uso interno; exigiria perfis, sessão e rever o papel de "responsável".

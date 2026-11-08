@@ -1,6 +1,7 @@
 import type { Pool } from 'pg';
 import type { FollowUp } from '../domain/follow-ups/follow-up.js';
 import type { CalendarDate } from '../domain/shared/calendar-date.js';
+import { ALL_ROWS, type PageParams } from '../domain/shared/pagination.js';
 
 export interface NewFollowUpRecord {
   quoteId: number;
@@ -9,7 +10,8 @@ export interface NewFollowUpRecord {
 }
 
 export interface FollowUpRepository {
-  findByQuoteId(quoteId: number): Promise<FollowUp[]>;
+  findByQuoteId(quoteId: number, page?: PageParams): Promise<FollowUp[]>;
+  countByQuoteId(quoteId: number): Promise<number>;
   insert(followUp: NewFollowUpRecord): Promise<FollowUp>;
 }
 
@@ -34,12 +36,21 @@ const COLUMNS = "id, quote_id, to_char(contacted_at, 'YYYY-MM-DD') AS contacted_
 
 export function createFollowUpRepository(pool: Pool): FollowUpRepository {
   return {
-    async findByQuoteId(quoteId) {
+    async findByQuoteId(quoteId, page = ALL_ROWS) {
       const { rows } = await pool.query<FollowUpRow>(
-        `SELECT ${COLUMNS} FROM follow_ups WHERE quote_id = $1 ORDER BY contacted_at DESC, id DESC`,
-        [quoteId],
+        `SELECT ${COLUMNS} FROM follow_ups WHERE quote_id = $1
+         ORDER BY contacted_at DESC, id DESC LIMIT $2 OFFSET $3`,
+        [quoteId, page.limit, page.offset],
       );
       return rows.map(toFollowUp);
+    },
+
+    async countByQuoteId(quoteId) {
+      const { rows } = await pool.query<{ total: number }>(
+        'SELECT COUNT(*)::int AS total FROM follow_ups WHERE quote_id = $1',
+        [quoteId],
+      );
+      return (rows[0] as { total: number }).total;
     },
 
     async insert(followUp) {

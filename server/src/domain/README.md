@@ -10,6 +10,7 @@ Decide status, validade de datas e valores, se um orçamento está parado e os i
 
 | Arquivo                         | Papel                                                                                                                     |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `shared/pagination.ts`          | `PageParams` (`limit` ou `null`, `offset`) e `ALL_ROWS`, o padrão de "sem paginação". Só tipo e constante.                |
 | `shared/calendar-date.ts`       | `CalendarDate` (`'YYYY-MM-DD'`), `isCalendarDate`, `daysBetween` (via UTC), `toCalendarDate` (padrão `America/Sao_Paulo`) |
 | `quotes/quote-status.ts`        | `QUOTE_STATUSES`, `ALLOWED_TRANSITIONS`, `OPEN_STATUSES`, `assertTransition`                                              |
 | `quotes/quote.ts`               | Tipos `Quote`, `NewQuoteInput` e `QuoteEditInput`; `validateNewQuote`, `validateQuoteEdit` e `changeStatus`               |

@@ -88,6 +88,22 @@ describe('GET /api/quotes', () => {
   });
 });
 
+describe('GET /api/quotes pagination', () => {
+  it('paginates quotes newest first keeping the full total', async () => {
+    const clientId = await insertClient(pool);
+    const ownerId = await insertOwner(pool);
+    await insertQuote(pool, { clientId, ownerId, description: 'Primeiro' });
+    const secondId = await insertQuote(pool, { clientId, ownerId, description: 'Segundo' });
+    await insertQuote(pool, { clientId, ownerId, description: 'Terceiro' });
+
+    const response = await request(app()).get('/api/quotes?limit=1&offset=1');
+
+    expect(response.status).toBe(200);
+    expect(response.body.total).toBe(3);
+    expect(response.body.items.map((quote: { id: number }) => quote.id)).toEqual([secondId]);
+  });
+});
+
 describe('GET /api/quotes/stale', () => {
   it('lists only stale quotes ordered by days without contact, then total, then id', async () => {
     const clientId = await insertClient(pool);

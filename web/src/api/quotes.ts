@@ -1,8 +1,15 @@
-import { request } from './client';
-import type { ListResponse, NewQuote, Quote, QuoteStatusChange, QuoteUpdate } from './types';
+import { request, withPage } from './client';
+import type {
+  ListResponse,
+  NewQuote,
+  PageQuery,
+  Quote,
+  QuoteStatusChange,
+  QuoteUpdate,
+} from './types';
 
-export function listQuotes(): Promise<ListResponse<Quote>> {
-  return request('/quotes');
+export function listQuotes(page?: PageQuery): Promise<ListResponse<Quote>> {
+  return request(withPage('/quotes', page));
 }
 
 export function getQuote(id: number): Promise<Quote> {

@@ -7,11 +7,13 @@ import { ClientActions } from '../components/ClientActions';
 import { ClientForm } from '../components/ClientForm';
 import { DataTable, type Column } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
-import { useAsync } from '../hooks/useAsync';
+import { Pagination } from '../components/Pagination';
+import { usePagedList } from '../hooks/usePagedList';
 import { useSubmit } from '../hooks/useSubmit';
+import { PAGE_SIZE } from '../pagination';
 
 export function ClientsPage() {
-  const clients = useAsync(listClients);
+  const clients = usePagedList(listClients);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   // No known fields: the server's `detail` (e.g. client with quotes) goes to `message`.
@@ -23,7 +25,10 @@ export function ClientsPage() {
   }
 
   function handleSaved() {
+    const wasEditing = editing !== null;
     closeForm();
+    // Editing stays on the same page; a new client goes back to page 1.
+    if (!wasEditing) clients.setPage(1);
     clients.reload();
   }
 
@@ -77,10 +82,18 @@ export function ClientsPage() {
       )}
       <AsyncView state={clients}>
         {(data) =>
-          data.items.length === 0 ? (
+          data.total === 0 ? (
             <EmptyState title="Nenhum cliente cadastrado" />
           ) : (
-            <DataTable items={data.items} columns={columns} getKey={(client) => client.id} />
+            <>
+              <DataTable items={data.items} columns={columns} getKey={(client) => client.id} />
+              <Pagination
+                page={clients.page}
+                total={data.total}
+                pageSize={PAGE_SIZE}
+                onPageChange={clients.setPage}
+              />
+            </>
           )
         }
       </AsyncView>

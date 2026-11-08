@@ -1,8 +1,8 @@
-import { request } from './client';
-import type { ListResponse, NewOwner, Owner } from './types';
+import { request, withPage } from './client';
+import type { ListResponse, NewOwner, Owner, PageQuery } from './types';
 
-export function listOwners(): Promise<ListResponse<Owner>> {
-  return request('/owners');
+export function listOwners(page?: PageQuery): Promise<ListResponse<Owner>> {
+  return request(withPage('/owners', page));
 }
 
 export function createOwner(input: NewOwner): Promise<Owner> {

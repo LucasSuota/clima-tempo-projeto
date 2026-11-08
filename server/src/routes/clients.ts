@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ClientNotFoundError } from '../errors.js';
 import type { ClientService } from '../services/client-service.js';
+import { parsePagination } from './pagination.js';
 
 const requiredText = (max: number) =>
   z
@@ -48,8 +49,8 @@ function parseClientId(raw: string): number {
 export function clientsRouter(service: ClientService): Router {
   const router = Router();
 
-  router.get('/clients', async (_req, res) => {
-    res.json(await service.listClients());
+  router.get('/clients', async (req, res) => {
+    res.json(await service.listClients(parsePagination(req.query)));
   });
 
   router.post('/clients', async (req, res) => {

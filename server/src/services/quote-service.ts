@@ -3,6 +3,7 @@ import type { QuoteDetails } from '../domain/quotes/quote-details.js';
 import type { QuoteStatus } from '../domain/quotes/quote-status.js';
 import { effectiveStatus, evaluateStaleness } from '../domain/quotes/stale-quote.js';
 import { toCalendarDate, type CalendarDate } from '../domain/shared/calendar-date.js';
+import type { PageParams } from '../domain/shared/pagination.js';
 import { QuoteNotFoundError, ValidationError, type FieldError } from '../errors.js';
 import type { ClientRepository } from '../repositories/client-repository.js';
 import type { OwnerRepository } from '../repositories/owner-repository.js';
@@ -37,7 +38,7 @@ export interface UpdateQuoteInput {
 }
 
 export interface QuoteService {
-  listQuotes(): Promise<{ items: QuoteResponse[]; total: number }>;
+  listQuotes(page: PageParams): Promise<{ items: QuoteResponse[]; total: number }>;
   listStaleQuotes(): Promise<{ items: QuoteResponse[]; total: number }>;
   getQuote(id: number): Promise<QuoteResponse>;
   createQuote(input: CreateQuoteInput): Promise<QuoteResponse>;
@@ -114,10 +115,10 @@ export function createQuoteService({
   }
 
   return {
-    async listQuotes() {
+    async listQuotes(page) {
       const today = toCalendarDate(now());
-      const items = (await quotes.findAll()).map((quote) => toResponse(quote, today));
-      return { items, total: items.length };
+      const [rows, total] = await Promise.all([quotes.findAll(page), quotes.count()]);
+      return { items: rows.map((quote) => toResponse(quote, today)), total };
     },
 
     async listStaleQuotes() {
