@@ -1,20 +1,36 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { listFollowUps } from '../api/follow-ups';
-import { getQuote } from '../api/quotes';
+import { deleteQuote, getQuote } from '../api/quotes';
 import { AsyncView } from '../components/AsyncView';
 import { FollowUpForm } from '../components/FollowUpForm';
 import { FollowUpHistory } from '../components/FollowUpHistory';
+import { QuoteActions } from '../components/QuoteActions';
+import { QuoteForm } from '../components/QuoteForm';
 import { StaleBadge } from '../components/StaleBadge';
 import { StatusBadge } from '../components/StatusBadge';
 import { StatusChangeForm } from '../components/StatusChangeForm';
 import { formatCurrency, formatDate, formatDays } from '../format';
 import { useAsync } from '../hooks/useAsync';
+import { useSubmit } from '../hooks/useSubmit';
 
 export function QuoteDetailPage({ id }: { id: number }) {
   const loadQuote = useCallback(() => getQuote(id), [id]);
   const loadFollowUps = useCallback(() => listFollowUps(id), [id]);
   const quote = useAsync(loadQuote);
   const followUps = useAsync(loadFollowUps);
+  const [editing, setEditing] = useState(false);
+  const removal = useSubmit([]);
+
+  // Follow-ups do not change when a quote is edited, so only the quote is reloaded.
+  function handleEdited() {
+    setEditing(false);
+    quote.reload();
+  }
+
+  async function handleDelete() {
+    const deleted = await removal.run(() => deleteQuote(id));
+    if (deleted) window.location.hash = '#/orcamentos';
+  }
 
   // A follow-up changes the days without contact, so both lists are refreshed.
   function handleFollowUpSaved() {
@@ -46,6 +62,25 @@ export function QuoteDetailPage({ id }: { id: number }) {
                 )}
               </dl>
             </div>
+            {removal.message && (
+              <p role="alert" className="rounded-md bg-red-50 p-3 text-red-800">
+                {removal.message}
+              </p>
+            )}
+            {editing ? (
+              <QuoteForm
+                key={data.id}
+                quote={data}
+                onSaved={handleEdited}
+                onCancel={() => setEditing(false)}
+              />
+            ) : (
+              <QuoteActions
+                disabled={removal.submitting}
+                onEdit={() => setEditing(true)}
+                onDelete={handleDelete}
+              />
+            )}
             <StatusChangeForm quote={data} onChanged={quote.reload} />
             {/* Keyed by status so an error about the old status does not outlive a status change. */}
             <FollowUpForm key={data.status} quoteId={data.id} onSaved={handleFollowUpSaved} />
