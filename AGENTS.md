@@ -16,7 +16,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (telas do mínimo obrigatório e painel com fila e indicadores prontos; o painel precisa dos endpoints da fila e dos indicadores na `main`) |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⏳ em andamento (`docker compose up --build` sobe banco, API e web em http://localhost:8080; o painel só carrega por inteiro com os endpoints da fila e dos indicadores na `main`) |
-| 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
+| 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⏳ em andamento (README final escrito; conclui com o merge do PR) |
 
 **A ordem importa.** Uma camada de cima só começa quando a de baixo está pronta: nada de tela antes da rota existir, nem rota antes da regra de domínio. Os testes são só os estritamente necessários (§8). Pedido fora de ordem: avise e proponha a tarefa de baixo.
 
@@ -391,4 +391,4 @@ Uma issue só está pronta quando:
 | Subir o web (Vite em http://localhost:5173, com proxy de `/api` para o server) | `npm --prefix web run dev` |
 | Validar um pacote | `npm --prefix server run check` · `npm --prefix web run check` |
 
-Todo pacote Node expõe os scripts: `dev`, `build`, `typecheck`, `lint`, `format:check`, `test` e `check` (`typecheck` + `lint` + `format:check` + `test`). Eles passam a valer quando o pacote é criado (etapas 2 e 4).
+Todo pacote Node expõe os scripts: `dev`, `build`, `typecheck`, `lint`, `format:check`, `test` e `check` (`typecheck` + `lint` + `format:check` + `test`). Valem para `server/` e `web/`.
