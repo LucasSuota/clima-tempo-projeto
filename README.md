@@ -2,7 +2,7 @@
 
 Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de instalação e manutenção de ar-condicionado. A ideia é que nenhum orçamento fique sem retorno: todos num só lugar, com o status de cada um, o responsável e o histórico de contatos com o cliente.
 
-> **Estado atual:** setup do repositório. O banco já sobe com Docker e o esqueleto do server responde `GET /api/health`. O restante do server e a web estão em desenvolvimento (veja o [Roadmap](#roadmap)).
+> **Estado atual:** o banco sobe com Docker, o server tem os recursos de responsáveis, clientes, orçamentos e follow-ups, e a web tem o esqueleto (Vite + React + Tailwind, proxy para a API e cliente HTTP tipado), ainda sem as telas de negócio. O restante está em desenvolvimento (veja o [Roadmap](#roadmap)).
 
 ## Stack
 
@@ -18,7 +18,7 @@ Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de ins
 ## Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) com Docker Compose v2 (`docker compose version`)
-- [Node.js](https://nodejs.org/) 22.13 ou mais novo, com npm (para o server)
+- [Node.js](https://nodejs.org/) 22.13 ou mais novo, com npm (para o server e a web)
 
 ## Como rodar
 
@@ -60,7 +60,13 @@ Os testes de API usam o banco `climafacil_test`, então o banco precisa estar no
 
 ### 4. Web
 
-Em breve. Depois dela, um único `docker compose up` para tudo.
+```bash
+npm --prefix web install
+npm --prefix web run dev         # http://localhost:5173 (precisa do server no ar)
+npm --prefix web run check       # typecheck + lint + format + testes
+```
+
+O Vite encaminha `/api` para o server (porta `PORT` do `.env`), então suba o server antes. Detalhes em [web/README.md](web/README.md). Depois das telas, um único `docker compose up` sobe tudo.
 
 ### Recriar o banco do zero
 
@@ -96,7 +102,7 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [server
 | 1 | Esquema do banco e dados fictícios | ⏳ |
 | 2 | API com testes | ⏳ |
 | 3 | Levantamento de requisitos da parte livre | ⬜ |
-| 4 | Interface web | ⬜ |
+| 4 | Interface web | ⏳ |
 | 5 | Tudo no Docker Compose | ⬜ |
 | 6 | Documentação final | ⬜ |
 
