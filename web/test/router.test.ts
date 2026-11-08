@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { parseRoute, quoteHref } from '../src/router';
 
 describe('parseRoute', () => {
-  it.each(['', '#', '#/', '#/orcamentos', '#/orcamentos/'])(
-    'sends %j to the quotes list',
-    (hash) => {
-      expect(parseRoute(hash)).toEqual({ name: 'quotes' });
-    },
-  );
+  it.each(['', '#', '#/', '#/fila', '#/fila/'])('sends %j to the dashboard', (hash) => {
+    expect(parseRoute(hash)).toEqual({ name: 'dashboard' });
+  });
+
+  it.each(['#/orcamentos', '#/orcamentos/'])('sends %j to the quotes list', (hash) => {
+    expect(parseRoute(hash)).toEqual({ name: 'quotes' });
+  });
 
   it('reads the quote id from the hash', () => {
     expect(parseRoute('#/orcamentos/12')).toEqual({ name: 'quote', id: 12 });
@@ -31,9 +32,12 @@ describe('parseRoute', () => {
     expect(parseRoute('#/responsaveis')).toEqual({ name: 'owners' });
   });
 
-  it.each(['#/xyz', '#/clientes/1', '#/orcamentos/1/extra'])('treats %j as not found', (hash) => {
-    expect(parseRoute(hash)).toEqual({ name: 'notFound' });
-  });
+  it.each(['#/xyz', '#/clientes/1', '#/orcamentos/1/extra', '#/fila/1'])(
+    'treats %j as not found',
+    (hash) => {
+      expect(parseRoute(hash)).toEqual({ name: 'notFound' });
+    },
+  );
 });
 
 describe('quoteHref', () => {

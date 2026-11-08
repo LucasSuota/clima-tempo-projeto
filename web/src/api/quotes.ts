@@ -17,7 +17,6 @@ export function changeQuoteStatus(id: number, change: QuoteStatusChange): Promis
   return request(`/quotes/${id}/status`, { method: 'PATCH', body: change });
 }
 
-// The endpoint is not on main yet (open PR #33); until it is merged, this answers 404.
 export function listStaleQuotes(): Promise<ListResponse<Quote>> {
   return request('/quotes/stale');
 }

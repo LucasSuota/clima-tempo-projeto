@@ -14,7 +14,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito |
 | 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio e APIs de responsáveis, clientes, orçamentos e follow-ups prontos; fila e indicadores em PRs) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
-| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (esqueleto pronto; telas pendentes) |
+| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (telas do mínimo obrigatório e painel com fila e indicadores prontos; o painel precisa dos endpoints da fila e dos indicadores na `main`) |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
 
@@ -225,7 +225,7 @@ web/test/         # testes (formatação, rotas, formulários e cliente HTTP)
 
 - O front **nunca** fala com o banco nem repete regra de negócio: o que é calculado no server (ex.: "está parado") vem pronto da API.
 - Tipos do contrato ficam em `web/src/api/types.ts`, espelhando os schemas do server. Mudou o contrato, mudam os dois no mesmo PR.
-- Telas: orçamentos (lista, criação e detalhe com mudança de status e follow-ups), clientes e responsáveis. O front não replica transições de status nem a regra de rascunho: oferece a ação e mostra o `detail`/`errors` do 422 que o server devolve.
+- Telas: painel inicial (indicadores no topo e a fila "quem contatar hoje", na ordem que a API devolve), orçamentos (lista, criação e detalhe com mudança de status e follow-ups), clientes e responsáveis. O front não replica transições de status nem a regra de rascunho: oferece a ação e mostra o `detail`/`errors` do 422 que o server devolve.
 - Em dev, o Vite faz proxy de `/api` para o server, então não há CORS em dev.
 - Pensar em celular desde o início: layout responsivo com Tailwind, sem largura fixa.
 

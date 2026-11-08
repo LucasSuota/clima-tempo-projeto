@@ -2,7 +2,7 @@
 
 Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de instalação e manutenção de ar-condicionado. A ideia é que nenhum orçamento fique sem retorno: todos num só lugar, com o status de cada um, o responsável e o histórico de contatos com o cliente.
 
-> **Estado atual:** o banco sobe com Docker, o server tem os recursos de responsáveis, clientes, orçamentos e follow-ups, e a web tem as telas do mínimo obrigatório (responsáveis, clientes, orçamentos com mudança de status e follow-ups), sem a fila "quem contatar hoje" e os indicadores. O restante está em desenvolvimento (veja o [Roadmap](#roadmap)).
+> **Estado atual:** o banco sobe com Docker, o server tem os recursos de responsáveis, clientes, orçamentos e follow-ups, e a web tem as telas do mínimo obrigatório (responsáveis, clientes, orçamentos com mudança de status e follow-ups) e o painel com os indicadores e a fila "quem contatar hoje" (que dependem dos endpoints `/api/quotes/stale` e `/api/indicators`, ainda em PR). O restante está em desenvolvimento (veja o [Roadmap](#roadmap)).
 
 ## Stack
 
