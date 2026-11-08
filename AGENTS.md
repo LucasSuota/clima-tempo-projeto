@@ -178,7 +178,7 @@ routes  →  services  →  domain
                      →  repositories  →  db (pg)
 ```
 
-- `domain/` é **puro**: recebe dados e a data de referência por parâmetro, não lê relógio, banco nem env. É onde fica a lógica mais testada (ex.: decidir se um orçamento está parado).
+- `domain/` é **puro**: recebe dados e a data de referência por parâmetro, não lê relógio, banco nem env. Só importa de `domain/` e dos erros de `errors.ts`. É onde fica a lógica mais testada (ex.: decidir se um orçamento está parado).
 - `repositories/` é o **único** lugar com SQL, sempre parametrizado (`$1`, `$2`). Converte linhas do banco em tipos do domínio.
 - `services/` contém a regra de aplicação. Recebe o repositório (ou o `Pool`) por parâmetro, sem singleton escondido.
 - `routes/` só traduz: valida a entrada com zod, chama o serviço, devolve JSON. **Nenhuma regra de negócio aqui.**
