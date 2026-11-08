@@ -11,7 +11,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | Etapa | O que entra | Estado |
 |---|---|---|
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
-| 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito (reabre com a issue de `owners`) |
+| 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito |
 | 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (esqueleto pronto; domínio, repositórios, serviços e rotas pendentes) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⬜ |
