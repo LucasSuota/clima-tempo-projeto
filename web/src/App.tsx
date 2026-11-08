@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { useHashRoute } from './hooks/useHashRoute';
 import { ClientsPage } from './pages/ClientsPage';
 import { OwnersPage } from './pages/OwnersPage';
+import { QuoteDetailPage } from './pages/QuoteDetailPage';
 import { QuotesPage } from './pages/QuotesPage';
 import type { Route } from './router';
 
@@ -26,7 +27,8 @@ function Page({ route }: { route: Route }) {
     case 'quotes':
       return <QuotesPage />;
     case 'quote':
-      return <EmptyState title="Detalhe do orçamento em breve" />;
+      // `key` remounts on id change, so the previous quote never flashes while the next loads.
+      return <QuoteDetailPage key={route.id} id={route.id} />;
   }
 }
 
