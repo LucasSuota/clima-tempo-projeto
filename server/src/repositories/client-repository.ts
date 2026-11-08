@@ -1,10 +1,12 @@
 import type { Pool } from 'pg';
 import type { Client, NewClient } from '../domain/clients/client.js';
-import { ValidationError } from '../errors.js';
+import { ClientHasQuotesError, ValidationError } from '../errors.js';
 
 export interface ClientRepository {
   findAll(): Promise<Client[]>;
   insert(client: NewClient): Promise<Client>;
+  update(id: number, client: NewClient): Promise<Client | undefined>;
+  remove(id: number): Promise<boolean>;
   existsById(id: number): Promise<boolean>;
 }
 
@@ -37,6 +39,18 @@ function toDuplicateError(error: unknown): ValidationError | undefined {
   return duplicate ? new ValidationError([duplicate]) : undefined;
 }
 
+const FOREIGN_KEY_VIOLATION = '23503';
+
+// Same reasoning as the duplicates: the foreign key from quotes is the single source of truth,
+// so a "has quotes?" pre-check (racy and redundant) is not needed.
+function toHasQuotesError(error: unknown): ClientHasQuotesError | undefined {
+  if (typeof error !== 'object' || error === null) return undefined;
+  const { code, constraint } = error as { code?: unknown; constraint?: unknown };
+  return code === FOREIGN_KEY_VIOLATION && constraint === 'quotes_client_id_fkey'
+    ? new ClientHasQuotesError()
+    : undefined;
+}
+
 export function createClientRepository(pool: Pool): ClientRepository {
   return {
     async findAll() {
@@ -55,6 +69,27 @@ export function createClientRepository(pool: Pool): ClientRepository {
         return toClient(rows[0] as ClientRow);
       } catch (error) {
         throw toDuplicateError(error) ?? error;
+      }
+    },
+
+    async update(id, client) {
+      try {
+        const { rows } = await pool.query<ClientRow>(
+          'UPDATE clients SET name = $2, email = $3, phone = $4 WHERE id = $1 RETURNING id, name, email, phone',
+          [id, client.name, client.email, client.phone],
+        );
+        return rows[0] ? toClient(rows[0]) : undefined;
+      } catch (error) {
+        throw toDuplicateError(error) ?? error;
+      }
+    },
+
+    async remove(id) {
+      try {
+        const result = await pool.query('DELETE FROM clients WHERE id = $1', [id]);
+        return result.rowCount === 1;
+      } catch (error) {
+        throw toHasQuotesError(error) ?? error;
       }
     },
 

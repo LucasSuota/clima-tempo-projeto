@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { createClient } from '../api/clients';
+import { createClient, updateClient } from '../api/clients';
+import type { Client } from '../api/types';
 import { useSubmit } from '../hooks/useSubmit';
 import { Button } from './Button';
 import { FormField } from './FormField';
@@ -7,27 +8,29 @@ import { FormField } from './FormField';
 const KNOWN_FIELDS = ['name', 'email', 'phone'];
 
 interface ClientFormProps {
+  /** When present the form edits this client; the caller remounts it (key) to switch clients. */
+  client?: Client;
   onSaved: () => void;
   onCancel: () => void;
 }
 
-export function ClientForm({ onSaved, onCancel }: ClientFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+export function ClientForm({ client, onSaved, onCancel }: ClientFormProps) {
+  const [name, setName] = useState(client?.name ?? '');
+  const [email, setEmail] = useState(client?.email ?? '');
+  const [phone, setPhone] = useState(client?.phone ?? '');
   const { submitting, fieldErrors, message, run } = useSubmit(KNOWN_FIELDS);
 
   const canSubmit = name.trim() !== '' && !submitting;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    // Empty optional fields are left out instead of sent as empty strings.
+    // Empty optional fields are left out instead of sent as empty strings; on update that clears them.
     const input = {
       name: name.trim(),
       ...(email.trim() !== '' && { email: email.trim() }),
       ...(phone.trim() !== '' && { phone: phone.trim() }),
     };
-    const saved = await run(() => createClient(input));
+    const saved = await run(() => (client ? updateClient(client.id, input) : createClient(input)));
     if (saved) onSaved();
   }
 
@@ -37,7 +40,7 @@ export function ClientForm({ onSaved, onCancel }: ClientFormProps) {
       onSubmit={handleSubmit}
       className="mb-6 space-y-4 rounded-md bg-white p-4 shadow-sm"
     >
-      <h2 className="text-lg font-semibold">Novo cliente</h2>
+      <h2 className="text-lg font-semibold">{client ? 'Editar cliente' : 'Novo cliente'}</h2>
       {message && (
         <p role="alert" className="rounded-md bg-red-50 p-3 text-red-800">
           {message}

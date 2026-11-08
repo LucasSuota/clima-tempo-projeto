@@ -33,9 +33,11 @@ Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fiqu
 - **Objetivo:** cadastrar clientes e orçamentos e listá-los com status.
 - **Regras:**
   - Cliente com nome obrigatório; e-mail e telefone opcionais (únicos quando informados).
+  - Cliente pode ser editado (`PUT /api/clients/:id`, corpo completo, como no `POST`: e-mail e telefone ausentes limpam o campo) e excluído (`DELETE /api/clients/:id`, `204`). Excluir cliente com orçamentos é recusado com 422 (erro de domínio, `detail` em português), e não 409, porque o §5.3 só prevê 404 e 422 para erros de negócio.
   - Orçamento pertence a um cliente e a um responsável (`owner_id`, obrigatório), com descrição, `total` e status.
 - **Aceite:**
   - Criar e listar orçamentos com cliente, responsável, total e status.
+  - Editar e excluir cliente; cliente inexistente responde 404, e excluir cliente com orçamentos responde 422 sem apagar nada.
   - Entrada inválida responde 422 no formato do §5.3.
   - Listagens devolvem `{ "items": [...], "total": n }` desde o início (evita mudança incompatível quando entrar a paginação).
 
@@ -81,7 +83,7 @@ Lista os orçamentos parados ordenados por dias sem contato, do maior para o men
 
 ### Se sobrar tempo (p2)
 
-Edição e exclusão de orçamento, CRUD completo de clientes e paginação.
+Edição e exclusão de orçamento e paginação. O CRUD completo de clientes já está feito (§2.1).
 
 ## §3. Fora do escopo (o que não será feito)
 
@@ -203,7 +205,7 @@ routes  →  services  →  domain
   { "detail": "Dados inválidos", "errors": [{ "field": "amount", "message": "Deve ser maior que zero" }] }
   ```
 
-- Status: `201` criado · `200` ok · `204` sem corpo · `404` inexistente · `422` entrada inválida · `500` erro inesperado (sem vazar stack).
+- Status: `201` criado · `200` ok · `204` sem corpo (exclusão) · `404` inexistente · `422` entrada inválida · `500` erro inesperado (sem vazar stack).
 - Mudança **incompatível** de contrato (remover ou renomear campo, mudar tipo ou status) só com o plano dizendo e o front ajustado no mesmo PR.
 - `GET /api/quotes/stale` devolve só os orçamentos parados, no mesmo formato `{ "items": [...], "total": n }` e com os mesmos itens de `GET /api/quotes`. É uma rota fixa, declarada antes de `/api/quotes/:id`.
 - `GET /api/indicators` é uma leitura sem entrada (sem corpo nem query) e devolve um objeto `{ "openTotal": 4200.35, "staleTotal": 3500.35, "conversionRate": 0.75 }`, não uma listagem.
@@ -346,7 +348,7 @@ Regras que o código precisa respeitar e que os testes do `domain/` cobrem.
 
 - **p0 (mínimo obrigatório):** §2.1 a §2.5 (clientes e orçamentos, responsáveis, status, follow-ups e orçamento parado).
 - **p1 (parte livre escolhida):** §2.6 (fila "quem contatar hoje") e §2.7 (indicadores no topo).
-- **p2 (só se sobrar tempo):** edição e exclusão de orçamento, CRUD completo de clientes e paginação.
+- **p2 (só se sobrar tempo):** edição e exclusão de orçamento e paginação (o CRUD completo de clientes já está feito, §2.1).
 
 Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
 

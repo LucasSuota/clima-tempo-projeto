@@ -48,6 +48,7 @@ export interface Client {
   phone: string | null;
 }
 
+// Also the body of PUT /clients/:id, which replaces the client: a missing e-mail or phone clears it.
 export interface NewClient {
   name: string;
   email?: string | null;

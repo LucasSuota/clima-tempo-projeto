@@ -207,7 +207,6 @@ Também ficaram de fora, por tecnologia (AGENTS.md §3.2): ORM, biblioteca de es
 O AGENTS.md §11 os marcou como "só se sobrar tempo", e não sobrou:
 
 - **Edição e exclusão de orçamento** (issue #21): hoje só se cria o orçamento e se muda o status. Um erro de digitação em `total` ou na descrição não tem correção pela API.
-- **CRUD completo de clientes** (issue #22): hoje só `GET` e `POST /api/clients`.
 - **Paginação nas listagens** (issue #23): as listagens devolvem tudo. O formato `{ items, total }` já está pronto para recebê-la.
 
 ## Como usei IA

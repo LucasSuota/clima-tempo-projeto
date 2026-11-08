@@ -37,3 +37,16 @@ export class QuoteNotFoundError extends DomainError {
     super('Orçamento não encontrado', 404);
   }
 }
+
+export class ClientNotFoundError extends DomainError {
+  constructor() {
+    super('Cliente não encontrado', 404);
+  }
+}
+
+// 422 rather than 409: the contract in AGENTS.md §5.3 only lists 404 and 422 for business errors.
+export class ClientHasQuotesError extends DomainError {
+  constructor() {
+    super('Não é possível excluir um cliente que possui orçamentos', 422);
+  }
+}
