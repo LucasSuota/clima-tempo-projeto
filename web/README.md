@@ -1,6 +1,6 @@
 # web
 
-> Front do ClimaFácil (Vite + React + TypeScript `strict` + Tailwind CSS v4). Hoje é só o esqueleto: uma tela de boas-vindas, o cliente HTTP tipado, os tipos do contrato, um hook de dados e as funções de formatação pt-BR. As telas de negócio entram nas próximas issues.
+> Front do ClimaFácil (Vite + React + TypeScript `strict` + Tailwind CSS v4). Tem as telas do mínimo obrigatório: responsáveis, clientes, orçamentos (lista, criação e detalhe com mudança de status e follow-ups). A fila "quem contatar hoje" e os indicadores entram em issue própria.
 
 ## Responsabilidade
 
@@ -8,23 +8,31 @@ Mostrar os dados da API e enviar as ações do usuário. O front **não** repete
 
 ## O que tem aqui
 
-| Arquivo                                                                 | Papel                                                                                                                                        |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.html`                                                            | Página de entrada (`lang="pt-BR"`, viewport para celular).                                                                                   |
-| `src/main.tsx`                                                          | Monta o React em `#root` e importa o CSS.                                                                                                    |
-| `src/App.tsx`                                                           | Raiz: `Layout` com a `HomePage`. Sem router por enquanto.                                                                                    |
-| `src/index.css`                                                         | `@import 'tailwindcss'` e estilo base do `body`.                                                                                             |
-| `src/components/Layout.tsx`                                             | Cabeçalho e `<main>` centralizado, sem largura fixa (`max-w-5xl`, `px-4`).                                                                   |
-| `src/pages/HomePage.tsx`                                                | Tela de boas-vindas (placeholder das telas reais).                                                                                           |
-| `src/api/types.ts`                                                      | Tipos do contrato, espelhando `server/src/routes` e `services` (`Quote`, `Owner`, `Client`, `FollowUp`, `Indicators`, `ListResponse`, etc.). |
-| `src/api/client.ts`                                                     | `request<T>()` e `ApiError { status, detail, errors }`. `status 0` = sem conexão. Erro fora do formato do §5.3 vira mensagem genérica.       |
-| `src/api/owners.ts`, `clients.ts`, `quotes.ts`, `follow-ups.ts`         | Uma função fina por endpoint (`listOwners`, `createQuote`, `changeQuoteStatus`...).                                                          |
-| `src/api/indicators.ts`                                                 | `getIndicators`. Junto com `listStaleQuotes` (em `quotes.ts`), responde 404 até os PRs #33 e #34 entrarem na `main`.                         |
-| `src/hooks/useAsync.ts`                                                 | `useAsync(load)` devolve `{ data, error, loading, reload }`. O `load` precisa ser estável (função de módulo ou `useCallback`).               |
-| `src/format.ts`                                                         | `formatCurrency`, `formatDate` (sem `new Date`, para não deslocar o dia pelo fuso), `formatPercent` e `QUOTE_STATUS_LABELS`.                 |
-| `test/format.test.ts`, `test/api/client.test.ts`                        | Testes das únicas lógicas não triviais (formatação e tratamento de erro do cliente), em ambiente Node.                                       |
-| `vite.config.ts`                                                        | Plugins React e Tailwind, proxy de `/api` e bloco do Vitest.                                                                                 |
-| `package.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas, com as mesmas versões do `server/`.                                                                                   |
+| Arquivo                                                                 | Papel                                                                                                                                                                       |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                                                            | Página de entrada (`lang="pt-BR"`, viewport para celular).                                                                                                                  |
+| `src/main.tsx`                                                          | Monta o React em `#root` e importa o CSS.                                                                                                                                   |
+| `src/App.tsx`                                                           | Raiz: `useHashRoute` escolhe a tela dentro do `Layout`. `QuoteDetailPage` usa `key={id}` para não mostrar o orçamento anterior.                                             |
+| `src/router.ts`                                                         | `parseRoute(hash)` (puro) e `quoteHref(id)`. Rotas: `#/orcamentos` (também a raiz), `#/orcamentos/:id`, `#/clientes`, `#/responsaveis`; o resto é "Página não encontrada".  |
+| `src/forms.ts`                                                          | `splitErrors` (erro da API em mensagens por campo + mensagem geral; campo que o formulário não tem vai para a mensagem geral) e `parseMoneyInput` (`1.500,50` -> `1500.5`). |
+| `src/index.css`                                                         | `@import 'tailwindcss'`, estilo base do `body` e a classe `.field-input`.                                                                                                   |
+| `src/components/Layout.tsx`                                             | Cabeçalho com menu (`aria-current`) e `<main>` centralizado, sem largura fixa.                                                                                              |
+| `src/components/DataTable.tsx`                                          | Uma definição de colunas vira `<table>` a partir de `md:` e lista de cards no celular.                                                                                      |
+| `src/components/AsyncView.tsx`, `Spinner`, `ErrorMessage`, `EmptyState` | Estados de carregando, erro (com "Tentar de novo") e vazio.                                                                                                                 |
+| `src/components/FormField`, `Button`, `StatusBadge`, `StaleBadge`       | Peças de formulário e badges (o "Parado há N dias" só exibe o que a API mandou).                                                                                            |
+| `src/components/*Form.tsx`, `FollowUpHistory.tsx`                       | Formulários de responsável, cliente, orçamento, mudança de status e follow-up, e o histórico de contatos.                                                                   |
+| `src/pages/`                                                            | `QuotesPage`, `QuoteDetailPage`, `ClientsPage`, `OwnersPage`.                                                                                                               |
+| `src/api/types.ts`                                                      | Tipos do contrato, espelhando `server/src/routes` e `services` (`Quote`, `Owner`, `Client`, `FollowUp`, `Indicators`, `ListResponse`, etc.).                                |
+| `src/api/client.ts`                                                     | `request<T>()` e `ApiError { status, detail, errors }`. `status 0` = sem conexão. Erro fora do formato do §5.3 vira mensagem genérica.                                      |
+| `src/api/owners.ts`, `clients.ts`, `quotes.ts`, `follow-ups.ts`         | Uma função fina por endpoint (`listOwners`, `createQuote`, `changeQuoteStatus`...).                                                                                         |
+| `src/api/indicators.ts`                                                 | `getIndicators`. Junto com `listStaleQuotes` (em `quotes.ts`), responde 404 até os PRs #33 e #34 entrarem na `main`; ainda sem uso nas telas.                               |
+| `src/hooks/useAsync.ts`                                                 | `useAsync(load)` devolve `{ data, error, loading, reload }`. O `load` precisa ser estável (função de módulo ou `useCallback`).                                              |
+| `src/hooks/useSubmit.ts`                                                | Ciclo comum dos formulários: `submitting`, erros por campo e mensagem geral; `run(action)` devolve se deu certo.                                                            |
+| `src/hooks/useHashRoute.ts`                                             | Lê `location.hash` com `useSyncExternalStore` e devolve a `Route`.                                                                                                          |
+| `src/format.ts`                                                         | `formatCurrency`, `formatDate` (sem `new Date`, para não deslocar o dia pelo fuso), `formatDays`, `formatPercent` e `QUOTE_STATUS_LABELS`.                                  |
+| `test/`                                                                 | Testes das lógicas não triviais: formatação, rotas, formulários e tratamento de erro do cliente, em ambiente Node.                                                          |
+| `vite.config.ts`                                                        | Plugins React e Tailwind, proxy de `/api` e bloco do Vitest.                                                                                                                |
+| `package.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas, com as mesmas versões do `server/`.                                                                                                                  |
 
 ## Comandos
 
@@ -43,13 +51,16 @@ O Vite serve em `5173` (`strictPort`: falha em vez de subir em outra porta, porq
 ## Como criar uma tela
 
 1. Chame a API pelas funções de `src/api/`, nunca com `fetch` direto no componente.
-2. Use `useAsync` com um `load` estável e trate os três estados: carregando, vazio e erro (`ApiError.detail` já vem em português; `errors[].field` mapeia para os campos do formulário).
-3. Formate valor e data com `src/format.ts` e mostre o status com `QUOTE_STATUS_LABELS`.
-4. Tailwind mobile-first: classe base para celular, `md:` para telas maiores.
+2. Liste com `useAsync` (`load` estável) dentro de `AsyncView` (carregando e erro) e trate o vazio com `EmptyState`.
+3. Formulário: estado com `useState`, envio com `useSubmit(camposConhecidos)` e `FormField` para a mensagem de cada campo. O 422 do server aparece no campo (`errors[].field`) ou na mensagem geral (`detail`); não replique a regra no front.
+4. Nova rota: acrescente o caso em `src/router.ts` (com teste), em `App.tsx` e, se couber, no menu do `Layout`.
+5. Formate valor e data com `src/format.ts` e mostre o status com `QUOTE_STATUS_LABELS`.
+6. Tailwind mobile-first: classe base para celular, `md:` para telas maiores.
 
 ## Decisões
 
 - **Tailwind v4 com `@tailwindcss/vite`**: sem `tailwind.config` e sem PostCSS.
-- **Sem router, sem estado global, sem biblioteca de dados ou de componentes** (AGENTS.md §3.2). Quando houver duas ou mais telas, a navegação entra numa issue própria.
-- **Testes em ambiente Node**, sem jsdom: só funções puras e `fetch` simulado. Componentes visuais não têm teste (AGENTS.md §8).
+- **Navegação por hash, sem biblioteca de router, estado global, dados ou componentes** (AGENTS.md §3.2). O parser é uma função pura e testável; o build estático não precisa de fallback de servidor.
+- **Transições de status e rascunho ficam no server**: o formulário oferece todos os status e mostra o 422 que vier (o front não repete regra de negócio).
+- **Testes em ambiente Node**, sem jsdom: só funções puras e `fetch` simulado. Componentes, hooks e páginas não têm teste (AGENTS.md §8).
 - **Sem zod no front**: a API é a fonte da validação; os tipos só descrevem a resposta.

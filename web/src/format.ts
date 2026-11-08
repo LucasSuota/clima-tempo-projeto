@@ -32,3 +32,7 @@ export function formatPercent(rate: number | null): string {
   if (rate === null) return 'Sem dados';
   return percentFormatter.format(rate);
 }
+
+export function formatDays(days: number): string {
+  return `${days} ${days === 1 ? 'dia' : 'dias'}`;
+}

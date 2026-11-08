@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatCurrency, formatDate, formatPercent } from '../src/format';
+import { formatCurrency, formatDate, formatDays, formatPercent } from '../src/format';
 
 // Intl uses a no-break space (U+00A0) between "R$" and the number.
 const NBSP = ' ';
@@ -44,5 +44,16 @@ describe('formatPercent', () => {
 
   it('says there is no data when the rate is null', () => {
     expect(formatPercent(null)).toBe('Sem dados');
+  });
+});
+
+describe('formatDays', () => {
+  it('uses the plural for zero and many days', () => {
+    expect(formatDays(0)).toBe('0 dias');
+    expect(formatDays(7)).toBe('7 dias');
+  });
+
+  it('uses the singular for one day', () => {
+    expect(formatDays(1)).toBe('1 dia');
   });
 });
