@@ -81,6 +81,11 @@ export function quotesRouter(service: QuoteService): Router {
     res.json(await service.listQuotes());
   });
 
+  // Must be declared before `/quotes/:id`, or "stale" would be parsed as an id and answer 404.
+  router.get('/quotes/stale', async (_req, res) => {
+    res.json(await service.listStaleQuotes());
+  });
+
   router.get('/quotes/:id', async (req, res) => {
     res.json(await service.getQuote(parseId(req.params.id)));
   });

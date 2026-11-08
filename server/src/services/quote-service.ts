@@ -38,6 +38,7 @@ export interface UpdateQuoteInput {
 
 export interface QuoteService {
   listQuotes(): Promise<{ items: QuoteResponse[]; total: number }>;
+  listStaleQuotes(): Promise<{ items: QuoteResponse[]; total: number }>;
   getQuote(id: number): Promise<QuoteResponse>;
   createQuote(input: CreateQuoteInput): Promise<QuoteResponse>;
   changeQuoteStatus(
@@ -87,6 +88,13 @@ export function createQuoteService({
     };
   }
 
+  // Stale quotes always have a number of days; the tie-breakers make the queue order deterministic.
+  function byContactPriority(a: QuoteResponse, b: QuoteResponse): number {
+    return (
+      (b.daysWithoutContact ?? 0) - (a.daysWithoutContact ?? 0) || b.total - a.total || a.id - b.id
+    );
+  }
+
   async function findOrFail(id: number): Promise<QuoteDetails> {
     const quote = await quotes.findById(id);
     if (!quote) throw new QuoteNotFoundError();
@@ -109,6 +117,15 @@ export function createQuoteService({
     async listQuotes() {
       const today = toCalendarDate(now());
       const items = (await quotes.findAll()).map((quote) => toResponse(quote, today));
+      return { items, total: items.length };
+    },
+
+    async listStaleQuotes() {
+      const today = toCalendarDate(now());
+      const items = (await quotes.findAll())
+        .map((quote) => toResponse(quote, today))
+        .filter((quote) => quote.isStale)
+        .sort(byContactPriority);
       return { items, total: items.length };
     },
 
