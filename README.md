@@ -18,7 +18,7 @@ Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de ins
 ## Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) com Docker Compose v2 (`docker compose version`)
-- [Node.js](https://nodejs.org/) 22.13 ou mais novo, com npm (para o server e a web)
+- [Node.js](https://nodejs.org/) 22.13 ou mais novo, com npm (só para desenvolver o server e a web fora do Docker)
 
 ## Como rodar
 
@@ -66,7 +66,21 @@ npm --prefix web run dev         # http://localhost:5173 (precisa do server no a
 npm --prefix web run check       # typecheck + lint + format + testes
 ```
 
-O Vite encaminha `/api` para o server (porta `PORT` do `.env`), então suba o server antes. Detalhes em [web/README.md](web/README.md). Depois das telas, um único `docker compose up` sobe tudo.
+O Vite encaminha `/api` para o server (porta `PORT` do `.env`), então suba o server antes. Detalhes em [web/README.md](web/README.md). Para subir tudo de uma vez, veja a próxima seção.
+
+### Tudo com Docker
+
+Sem instalar Node: o Compose sobe o banco, a API e o front.
+
+```bash
+cp .env.example .env
+docker compose up --build        # -d para segundo plano
+curl http://localhost:8080/api/health
+```
+
+Abra http://localhost:8080. O front (nginx) serve as telas e encaminha `/api` para a API, que não é publicada no host. A porta do front muda com `WEB_PORT` no `.env`. Para parar mantendo os dados: `docker compose down`.
+
+> O painel inicial depende dos endpoints `/api/quotes/stale` e `/api/indicators` (PRs em aberto); até entrarem na `main`, as duas seções mostram erro de carregamento.
 
 ### Recriar o banco do zero
 
@@ -84,7 +98,7 @@ docker compose up -d db
 ```
 .
 ├── AGENTS.md            # regras do projeto: escopo, arquitetura, convenções
-├── docker-compose.yml   # banco (server e web entram depois)
+├── docker-compose.yml   # banco, server e web
 ├── .env.example         # variáveis de ambiente de desenvolvimento
 ├── agents/              # agentes do fluxo de desenvolvimento
 ├── db/                  # esquema e seed em SQL
@@ -103,7 +117,7 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [server
 | 2 | API com testes | ⏳ |
 | 3 | Levantamento de requisitos da parte livre | ⬜ |
 | 4 | Interface web | ⏳ |
-| 5 | Tudo no Docker Compose | ⬜ |
+| 5 | Tudo no Docker Compose | ⏳ |
 | 6 | Documentação final | ⬜ |
 
 ## Como o desenvolvimento é organizado
@@ -119,6 +133,8 @@ O trabalho segue um fluxo por issues, com papéis definidos em [agents/](agents/
 | Valores em `NUMERIC(12,2)` | Decimal exato no banco; `float` erra arredondamento com dinheiro. |
 | Scripts em `db/init/` em vez de migrações | Mais simples para um projeto só com dados fictícios. Custo: mudar o esquema exige recriar o volume. |
 | Banco de teste separado (`climafacil_test`) | Os testes de API rodam contra um Postgres de verdade sem tocar nos dados de dev. |
+| nginx serve o front e faz proxy de `/api` | O navegador fala só com uma origem (como o proxy do Vite em dev), sem CORS no caminho e sem o server conhecer o front. A API não é publicada no host. |
+| CORS próprio, sem o pacote `cors` | São poucas linhas, restritas a `CORS_ORIGIN` com comparação exata (nunca `*`), e não adiciona dependência (AGENTS.md §3.2). |
 
 _Esta seção cresce durante o desenvolvimento._
 
