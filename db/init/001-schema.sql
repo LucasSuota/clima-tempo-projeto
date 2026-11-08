@@ -6,12 +6,21 @@ CREATE TABLE clients (
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE owners (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name text NOT NULL,
+    -- free text on purpose: the function/title shown on screen; no CHECK or lookup table
+    role text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- draft: not sent yet · sent: waiting for an answer · negotiating: client replied
 -- no_response: sent but no reply after X days (set by the app, not by hand) · won · lost
 
 CREATE TABLE quotes (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     client_id bigint NOT NULL REFERENCES clients (id),
+    owner_id bigint NOT NULL REFERENCES owners (id),
     description text NOT NULL,
     total numeric(12, 2) NOT NULL CHECK (total > 0),
     status text NOT NULL DEFAULT 'draft'
@@ -23,6 +32,7 @@ CREATE TABLE quotes (
 );
 
 CREATE INDEX quotes_client_id_idx ON quotes (client_id);
+CREATE INDEX quotes_owner_id_idx ON quotes (owner_id);
 
 CREATE TABLE follow_ups (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
