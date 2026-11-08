@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 type Result<T> = { version: number; data: T } | { version: number; error: Error };
 
-interface AsyncState<T> {
+export interface AsyncState<T> {
   data: T | undefined;
   error: Error | null;
   loading: boolean;
