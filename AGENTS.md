@@ -209,15 +209,18 @@ routes  →  services  →  domain
 ```
 web/src/
 ├── api/          # cliente HTTP tipado (fetch) e tipos do contrato (types.ts)
-├── components/   # componentes reutilizáveis
+├── components/   # componentes reutilizáveis (tabela/cards, formulários, badges, estados)
 ├── pages/        # telas
-├── hooks/        # hooks de dados e de UI
-└── format.ts     # formatação pt-BR (moeda, data, percentual) e rótulos dos status
-web/test/         # testes (formatação e cliente HTTP)
+├── hooks/        # hooks de dados e de UI (useAsync, useSubmit, useHashRoute)
+├── router.ts     # navegação por hash (parseRoute), sem biblioteca de router
+├── forms.ts      # leitura de valor digitado e mapeamento de erros 422 para os campos
+└── format.ts     # formatação pt-BR (moeda, data, dias, percentual) e rótulos dos status
+web/test/         # testes (formatação, rotas, formulários e cliente HTTP)
 ```
 
 - O front **nunca** fala com o banco nem repete regra de negócio: o que é calculado no server (ex.: "está parado") vem pronto da API.
 - Tipos do contrato ficam em `web/src/api/types.ts`, espelhando os schemas do server. Mudou o contrato, mudam os dois no mesmo PR.
+- Telas: orçamentos (lista, criação e detalhe com mudança de status e follow-ups), clientes e responsáveis. O front não replica transições de status nem a regra de rascunho: oferece a ação e mostra o `detail`/`errors` do 422 que o server devolve.
 - Em dev, o Vite faz proxy de `/api` para o server, então não há CORS em dev.
 - Pensar em celular desde o início: layout responsivo com Tailwind, sem largura fixa.
 
