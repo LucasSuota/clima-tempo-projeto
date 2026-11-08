@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
+export const DEFAULT_STALE_DAYS = 7;
+
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3333),
   DATABASE_URL: z.string().min(1),
   DATABASE_URL_TEST: z.string().min(1).optional(),
   CORS_ORIGIN: z.string().min(1).optional(),
-  STALE_DAYS: z.coerce.number().int().min(1).default(7),
+  STALE_DAYS: z.coerce.number().int().min(1).default(DEFAULT_STALE_DAYS),
 });
 
 export interface Config {

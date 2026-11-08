@@ -4,7 +4,7 @@ import { createPool } from './db.js';
 
 const config = loadConfig(process.env);
 const pool = createPool(config.databaseUrl);
-const app = createApp({ pool });
+const app = createApp({ pool, staleDays: config.staleDays });
 
 const server = app.listen(config.port, () => {
   // eslint-disable-next-line no-console

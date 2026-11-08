@@ -4,6 +4,7 @@ import type { NewOwner, Owner } from '../domain/owners/owner.js';
 export interface OwnerRepository {
   findAll(): Promise<Owner[]>;
   insert(owner: NewOwner): Promise<Owner>;
+  existsById(id: number): Promise<boolean>;
 }
 
 // pg returns bigint columns as strings.
@@ -32,6 +33,14 @@ export function createOwnerRepository(pool: Pool): OwnerRepository {
         [owner.name, owner.role],
       );
       return toOwner(rows[0] as OwnerRow);
+    },
+
+    async existsById(id) {
+      const { rows } = await pool.query<{ exists: boolean }>(
+        'SELECT EXISTS (SELECT 1 FROM owners WHERE id = $1) AS exists',
+        [id],
+      );
+      return rows[0]?.exists === true;
     },
   };
 }
