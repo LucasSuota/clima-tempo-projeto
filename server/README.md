@@ -1,29 +1,31 @@
 # server
 
-> API do ClimaFácil (Express 5 + TypeScript `strict`, SQL puro com `pg`, `zod`). Hoje é só o esqueleto: expõe `GET /api/health`.
+> API do ClimaFácil (Express 5 + TypeScript `strict`, SQL puro com `pg`, `zod`). Hoje tem o esqueleto (`GET /api/health`) e as regras de domínio puras; repositórios, serviços e rotas de recurso ainda não existem.
 
 ## Responsabilidade
 
 Sobe o servidor HTTP, valida o ambiente, monta o Express e traduz erros para o formato único da API (AGENTS.md §5.3).
-Ainda **não** tem regra de negócio, SQL de domínio nem recursos: `domain/`, `repositories/` e `services/` não existem e entram nas próximas issues (AGENTS.md §1, etapa 2).
+As regras de negócio vivem em `src/domain/` (funções puras, sem I/O; veja [src/domain/README.md](src/domain/README.md)). Ainda **não** há SQL de domínio nem recursos: `repositories/` e `services/` não existem e entram nas próximas issues (AGENTS.md §1, etapa 2).
 
 ## O que tem aqui
 
-| Arquivo                                                                  | Papel                                                                                                                          |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `src/index.ts`                                                           | Carrega a config, cria o Pool e o app, chama `listen` e encerra com `SIGINT`/`SIGTERM`.                                        |
-| `src/app.ts`                                                             | `createApp({ pool })`: `express.json()`, `apiRouter` em `/api`, 404 e handler de erros. Não chama `listen`.                    |
-| `src/config.ts`                                                          | `loadConfig(env)`: valida as variáveis com zod e devolve `Config`; lança erro se `DATABASE_URL` faltar ou `PORT` for inválida. |
-| `src/db.ts`                                                              | `createPool(connectionString)`: cria o `Pool` do `pg`.                                                                         |
-| `src/errors.ts`                                                          | `DomainError` e `ValidationError` (os erros de domínio; a tradução para HTTP fica em `middlewares/`).                          |
-| `src/middlewares/error-handler.ts`                                       | `notFoundHandler` (404) e `errorHandler` (422 para zod e JSON malformado, 500 genérico).                                       |
-| `src/routes/index.ts`                                                    | `apiRouter(pool)`: monta os routers de recurso; `app.ts` o usa em `/api`.                                                      |
-| `src/routes/health.ts`                                                   | `healthRouter(pool)`: `GET /api/health` roda `SELECT 1` e responde `{ "ok": true }`.                                           |
-| `test/config.test.ts`                                                    | Valida `loadConfig` (sem banco).                                                                                               |
-| `test/middlewares/error-handler.test.ts`                                 | `errorHandler` e `notFoundHandler` (sem banco).                                                                                |
-| `test/routes/health.test.ts`                                             | API com supertest e banco de teste.                                                                                            |
-| `vitest.config.ts`                                                       | Carrega `../.env` e desliga o paralelismo entre arquivos (um banco de teste só).                                               |
-| `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas; `tsconfig.build.json` gera `dist/`.                                                                     |
+| Arquivo                                                                  | Papel                                                                                                                                                               |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.ts`                                                           | Carrega a config, cria o Pool e o app, chama `listen` e encerra com `SIGINT`/`SIGTERM`.                                                                             |
+| `src/app.ts`                                                             | `createApp({ pool })`: `express.json()`, `apiRouter` em `/api`, 404 e handler de erros. Não chama `listen`.                                                         |
+| `src/config.ts`                                                          | `loadConfig(env)`: valida as variáveis com zod e devolve `Config` (inclui `staleDays`); lança erro se `DATABASE_URL` faltar ou `PORT`/`STALE_DAYS` forem inválidas. |
+| `src/db.ts`                                                              | `createPool(connectionString)`: cria o `Pool` do `pg`.                                                                                                              |
+| `src/errors.ts`                                                          | `DomainError`, `ValidationError`, `InvalidStatusTransitionError` e `FollowUpNotAllowedError` (todos 422; a tradução para HTTP fica em `middlewares/`).              |
+| `src/domain/`                                                            | Regras puras: datas, status, orçamento, follow-up, parado e indicadores. Detalhes em `src/domain/README.md`.                                                        |
+| `src/middlewares/error-handler.ts`                                       | `notFoundHandler` (404) e `errorHandler` (422 para zod e JSON malformado, 500 genérico).                                                                            |
+| `src/routes/index.ts`                                                    | `apiRouter(pool)`: monta os routers de recurso; `app.ts` o usa em `/api`.                                                                                           |
+| `src/routes/health.ts`                                                   | `healthRouter(pool)`: `GET /api/health` roda `SELECT 1` e responde `{ "ok": true }`.                                                                                |
+| `test/config.test.ts`                                                    | Valida `loadConfig` (sem banco).                                                                                                                                    |
+| `test/middlewares/error-handler.test.ts`                                 | `errorHandler` e `notFoundHandler` (sem banco).                                                                                                                     |
+| `test/domain/`                                                           | Testes unitários do domínio (sem banco), espelhando `src/domain/`.                                                                                                  |
+| `test/routes/health.test.ts`                                             | API com supertest e banco de teste.                                                                                                                                 |
+| `vitest.config.ts`                                                       | Carrega `../.env` e desliga o paralelismo entre arquivos (um banco de teste só).                                                                                    |
+| `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas; `tsconfig.build.json` gera `dist/`.                                                                                                          |
 
 ## Estrutura-alvo
 
@@ -33,7 +35,7 @@ Ainda **não** tem regra de negócio, SQL de domínio nem recursos: `domain/`, `
 src/
 ├── index.ts, app.ts, config.ts, db.ts, errors.ts
 ├── middlewares/    # error-handler.ts, validate-body.ts
-├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients)
+├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients) e shared/ (calendar-date.ts)
 ├── repositories/   # único lugar com SQL; <recurso>-repository.ts
 ├── services/       # casos de uso; <recurso>-service.ts
 └── routes/         # index.ts (monta /api), health.ts, <recurso>.ts com os schemas zod
@@ -50,16 +52,20 @@ Regras:
 
 ## Como se conecta
 
-- **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `middlewares/error-handler.ts` e `routes/index.ts`; `middlewares/error-handler.ts` importa `errors.ts`.
+- **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `middlewares/error-handler.ts` e `routes/index.ts`; `middlewares/error-handler.ts` importa `errors.ts`; `domain/` importa só a si mesmo e `errors.ts` (nenhum import de `express`, `pg` ou `config.ts`).
 - **É usado por:** nada ainda no repositório (o `web/` consumirá `/api` na etapa 4).
 - **Contratos e dados:** `GET /api/health`; erro sempre `{ "detail", "errors": [{ "field", "message" }] }`.
-- **Variáveis de ambiente** (lidas de `../.env`): `DATABASE_URL` (obrigatória), `DATABASE_URL_TEST` (só testes de API), `PORT` (padrão `3333`), `CORS_ORIGIN` (lida, ainda sem uso).
+- **Variáveis de ambiente** (lidas de `../.env`): `DATABASE_URL` (obrigatória), `DATABASE_URL_TEST` (só testes de API), `PORT` (padrão `3333`), `CORS_ORIGIN` (lida, ainda sem uso), `STALE_DAYS` (padrão `7`, mínimo `1`; vira `Config.staleDays`, ainda não consumida por serviço).
 
 ## Decisões que moldam este código
 
 - `app.ts` separado de `index.ts` para o supertest usar o app sem `listen` (AGENTS.md §5.2).
 - `loadConfig` e `createApp` recebem env e `Pool` por parâmetro, sem singleton (AGENTS.md §5.2).
 - Erro 500 não vaza stack nem mensagem interna; só o log do server vê o erro (AGENTS.md §12).
+- Datas de calendário são strings `'YYYY-MM-DD'` (`CalendarDate`), como na API e nas colunas `date`; o domínio não usa `Date` para regra (AGENTS.md §5.5).
+- "Hoje" e `staleDays` entram por parâmetro no domínio; nada lê relógio nem env (AGENTS.md §5.2, §8).
+- `no_response` é derivado na leitura: só um `sent` parado vira `no_response` (`effectiveStatus`); não é gravado por job.
+- O domínio não faz aritmética de dinheiro: `total` é string decimal vinda do `NUMERIC`; somas ficam no SQL (AGENTS.md §5.5).
 - Exige Node `^22.13 || ^24 || >=26` (`engines` no `package.json`), por causa do Vitest 5 e do ESLint 10.
 
 ## Como testar

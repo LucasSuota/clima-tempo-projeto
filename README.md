@@ -86,7 +86,7 @@ docker compose up -d db
 └── web/                 # front (React + Tailwind)
 ```
 
-Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [web/](web/README.md) · [agents/](agents/README.md).
+Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [server/src/domain/](server/src/domain/README.md) · [web/](web/README.md) · [agents/](agents/README.md).
 
 ## Roadmap
 

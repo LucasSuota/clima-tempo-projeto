@@ -37,6 +37,18 @@ describe('loadConfig', () => {
     expect(config.corsOrigin).toBeUndefined();
   });
 
+  it('uses 7 stale days when STALE_DAYS is not set', () => {
+    expect(loadConfig(baseEnv).staleDays).toBe(7);
+  });
+
+  it('reads STALE_DAYS as a number', () => {
+    expect(loadConfig({ ...baseEnv, STALE_DAYS: '10' }).staleDays).toBe(10);
+  });
+
+  it.each(['0', 'abc'])('throws when STALE_DAYS is %s', (days) => {
+    expect(() => loadConfig({ ...baseEnv, STALE_DAYS: days })).toThrow(/STALE_DAYS/);
+  });
+
   it('throws when DATABASE_URL is missing', () => {
     expect(() => loadConfig({})).toThrow(/DATABASE_URL/);
   });
