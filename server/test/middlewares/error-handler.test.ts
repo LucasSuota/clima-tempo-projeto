@@ -2,7 +2,8 @@ import express from 'express';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { DomainError, ValidationError, errorHandler, notFoundHandler } from '../src/errors.js';
+import { DomainError, ValidationError } from '../../src/errors.js';
+import { errorHandler, notFoundHandler } from '../../src/middlewares/error-handler.js';
 
 class TeapotError extends DomainError {
   constructor() {

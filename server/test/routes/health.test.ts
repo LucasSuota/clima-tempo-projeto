@@ -1,8 +1,8 @@
 import type { Pool } from 'pg';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { createApp } from '../src/app.js';
-import { createPool } from '../src/db.js';
+import { createApp } from '../../src/app.js';
+import { createPool } from '../../src/db.js';
 
 const databaseUrlTest = process.env.DATABASE_URL_TEST;
 

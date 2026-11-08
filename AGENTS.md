@@ -155,8 +155,8 @@ server/src/
 server/test/            # espelha src/
 ├── domain/quotes/stale-quote.test.ts
 ├── routes/quotes.test.ts
+├── middlewares/error-handler.test.ts
 ├── config.test.ts
-├── errors.test.ts
 └── helpers/            # conexão do banco de teste, limpeza e criação de dados fictícios
 ```
 
@@ -169,16 +169,6 @@ Regras de organização:
 3. Schemas zod ficam no arquivo do router (§5.3). Se passarem de ~80 linhas, extrair para `<recurso>-schemas.ts` na mesma pasta.
 4. Recurso novo = um arquivo (no `domain/`, uma pasta) em cada camada, com o mesmo nome-base.
 5. Só `routes/`, `middlewares/` e `app.ts` importam `express`; só `db.ts` e `repositories/` usam `pg` em execução (`import type { Pool }` é permitido onde o `Pool` chega por parâmetro); `domain/` não importa nada de fora de `domain/`, exceto os erros de `errors.ts`.
-
-> A estrutura-alvo vale para o código NOVO. O código existente não foi movido neste PR.
-
-Movimentações pendentes (o autor decide; candidata a issue `chore`):
-
-- `errors.ts` hoje também contém `notFoundHandler` e `errorHandler`: mover para `middlewares/error-handler.ts`, mantendo `DomainError` e `ValidationError` em `errors.ts`.
-- O router de `/api` é montado direto em `app.ts` (`app.use('/api', healthRouter(pool))`): mover para `routes/index.ts`.
-- `test/health.test.ts` -> `test/routes/health.test.ts`, e criar `test/helpers/`.
-- `test/errors.test.ts` testa `errorHandler`: ao mover o handler, esse teste vai para `test/middlewares/error-handler.test.ts`.
-- Já estão no lugar: `config.ts`, `db.ts`, `routes/health.ts`, `test/config.test.ts`.
 
 Direção de dependência, sempre para baixo:
 
