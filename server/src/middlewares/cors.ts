@@ -4,13 +4,19 @@ import type { RequestHandler } from 'express';
 // Without it the API stays same-origin only, which is how the web reaches it in dev and in Docker.
 export function createCorsMiddleware(allowedOrigin: string | undefined): RequestHandler {
   return (req, res, next) => {
-    if (allowedOrigin === undefined || req.headers.origin !== allowedOrigin) {
+    if (allowedOrigin === undefined) {
+      next();
+      return;
+    }
+
+    // The answer depends on the Origin header, so caches must key on it even when it is rejected.
+    res.vary('Origin');
+    if (req.headers.origin !== allowedOrigin) {
       next();
       return;
     }
 
     res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.vary('Origin');
 
     if (req.method === 'OPTIONS') {
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
