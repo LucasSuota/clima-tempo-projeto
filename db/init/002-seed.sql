@@ -2,14 +2,14 @@
 -- so the stale/recent cases stay valid on any day the volume is created.
 
 INSERT INTO clients (name, email, phone) VALUES
-    ('Ana Souza',           'ana.souza@example.com',     '(11) 90000-0001'),
-    ('Bruno Lima',          'bruno.lima@example.com',    '(11) 90000-0002'),
-    ('Carla Mendes',        'carla.mendes@example.com',  '(11) 90000-0003'),
+    ('Ana Souza',           'ana.souza@example.com',     '11900000001'),
+    ('Bruno Lima',          'bruno.lima@example.com',    '11900000002'),
+    ('Carla Mendes',        'carla.mendes@example.com',  '11900000003'),
     ('Diego Ferreira',      NULL,                        NULL),
-    ('Eva Martins',         'eva.martins@example.com',   '(11) 90000-0005'),
-    ('Fábio Rocha',         NULL,                        '(11) 90000-0006'),
-    ('Gisele Alves',        'gisele.alves@example.com',  '(11) 90000-0007'),
-    ('Hélio Barros',        'helio.barros@example.com',  '(11) 90000-0008');
+    ('Eva Martins',         'eva.martins@example.com',   '11900000005'),
+    ('Fábio Rocha',         NULL,                        '11900000006'),
+    ('Gisele Alves',        'gisele.alves@example.com',  '11900000007'),
+    ('Hélio Barros',        'helio.barros@example.com',  '11900000008');
 
 INSERT INTO owners (name, role) VALUES
     ('Marina Costa',        'Vendedora'),
