@@ -38,7 +38,7 @@ describe('GET /api/owners', () => {
   });
 
   it('answers 500 in the standard format, without leaking details, when the database fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     const failingPool = {
       query: () => Promise.reject(new Error('connect ECONNREFUSED 10.0.0.1:5432')),
     } as unknown as Pool;
@@ -48,6 +48,7 @@ describe('GET /api/owners', () => {
     expect(response.status).toBe(500);
     expect(response.body).toEqual({ detail: 'Erro interno do servidor', errors: [] });
     expect(response.text).not.toContain('ECONNREFUSED');
+    consoleError.mockRestore();
   });
 });
 
