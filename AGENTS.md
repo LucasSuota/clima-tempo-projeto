@@ -53,6 +53,9 @@ Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fiqu
 
 Regras em §7. Transição inválida resulta em erro de domínio.
 
+- A mudança de status é `PATCH /api/quotes/:id/status`, com corpo `{ "status": "...", "sentAt"?: "YYYY-MM-DD" }`; `sentAt` só vale quando o novo status é `sent`.
+- A resposta do orçamento traz o status **efetivo** (um `sent` parado aparece como `no_response`), `isStale`, `daysWithoutContact`, `client` (`id`, `name`) e `owner` (`id`, `name`, `role`).
+
 #### §2.4 Follow-ups
 
 Registro de contato com data e descrição opcional. O histórico é ordenado por data. O efeito no orçamento está em §7.
@@ -190,6 +193,7 @@ routes  →  services  →  domain
 - JSON nos dois sentidos; campos em `camelCase` na API e `snake_case` no banco. A conversão acontece no repositório.
 - Toda entrada passa por um schema zod. Os schemas ficam em `routes/` junto do router que os usa.
 - Listagens devolvem `{ "items": [...], "total": n }` desde o início, para a paginação futura não ser mudança incompatível.
+- Dinheiro trafega como `number` no JSON (`total: 1500.5`), com no máximo 2 casas decimais; no banco continua `NUMERIC(12,2)`.
 - Formato de erro único. Chaves em inglês, mensagens em português (são exibidas ao usuário, §6):
 
   ```json
