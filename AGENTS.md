@@ -15,7 +15,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio e APIs de responsáveis, clientes, orçamentos e follow-ups prontos; fila e indicadores em PRs) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (telas do mínimo obrigatório e painel com fila e indicadores prontos; o painel precisa dos endpoints da fila e dos indicadores na `main`) |
-| 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
+| 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⏳ em andamento (`docker compose up --build` sobe banco, API e web em http://localhost:8080; o painel só carrega por inteiro com os endpoints da fila e dos indicadores na `main`) |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
 
 **A ordem importa.** Uma camada de cima só começa quando a de baixo está pronta: nada de tela antes da rota existir, nem rota antes da regra de domínio. Os testes são só os estritamente necessários (§8). Pedido fora de ordem: avise e proponha a tarefa de baixo.
@@ -113,7 +113,7 @@ Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de for
 | Validação de entrada | `zod` (na borda da API) |
 | Testes | Vitest + supertest |
 | Web | Vite · React · TypeScript · Tailwind CSS |
-| Infra | Docker Compose na raiz (banco agora; server e web depois) |
+| Infra | Docker Compose na raiz (banco, server e web); imagens `node:24-alpine` e `nginxinc/nginx-unprivileged` |
 
 ## §5. Arquitetura
 
@@ -123,13 +123,13 @@ Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de for
 .
 ├── AGENTS.md            # este arquivo
 ├── README.md            # visão geral e como rodar
-├── docker-compose.yml
+├── docker-compose.yml   # db, server e web
 ├── .env.example
 ├── agents/              # definições dos agentes (§13 e agents/README.md)
 ├── db/
 │   └── init/            # scripts SQL executados na criação do volume
-├── server/              # API (§5.2)
-└── web/                 # front (§5.4)
+├── server/              # API (§5.2); Dockerfile
+└── web/                 # front (§5.4); Dockerfile e nginx.conf
 ```
 
 Cada pasta com código tem um `README.md` curto de resumo, mantido pelo `doc-writer`.
@@ -226,7 +226,7 @@ web/test/         # testes (formatação, rotas, formulários e cliente HTTP)
 - O front **nunca** fala com o banco nem repete regra de negócio: o que é calculado no server (ex.: "está parado") vem pronto da API.
 - Tipos do contrato ficam em `web/src/api/types.ts`, espelhando os schemas do server. Mudou o contrato, mudam os dois no mesmo PR.
 - Telas: painel inicial (indicadores no topo e a fila "quem contatar hoje", na ordem que a API devolve), orçamentos (lista, criação e detalhe com mudança de status e follow-ups), clientes e responsáveis. O front não replica transições de status nem a regra de rascunho: oferece a ação e mostra o `detail`/`errors` do 422 que o server devolve.
-- Em dev, o Vite faz proxy de `/api` para o server, então não há CORS em dev.
+- Em dev, o Vite faz proxy de `/api` para o server, então não há CORS em dev. Em Docker, o nginx do web faz o mesmo proxy (`/api` para `server:3333`), então o navegador também fala só com a mesma origem.
 - Pensar em celular desde o início: layout responsivo com Tailwind, sem largura fixa.
 
 ### §5.5 Banco
@@ -388,6 +388,10 @@ Uma issue só está pronta quando:
 | Ver o estado | `docker compose ps` |
 | Abrir o psql | `docker compose exec db psql -U climafacil -d climafacil` |
 | Recriar o banco do zero (reaplica `db/init/`) | `docker compose down -v && docker compose up -d db` |
+| Subir tudo no Docker (banco, API e web em http://localhost:8080) | `docker compose up --build` (`-d` para segundo plano) |
+| Ver os logs de um serviço | `docker compose logs -f server` |
+| Parar tudo mantendo os dados | `docker compose down` |
+| Parar e apagar o volume do banco | `docker compose down -v` |
 | Subir o server (API em http://localhost:3333) | `npm --prefix server run dev` |
 | Subir o web (Vite em http://localhost:5173, com proxy de `/api` para o server) | `npm --prefix web run dev` |
 | Validar um pacote | `npm --prefix server run check` · `npm --prefix web run check` |

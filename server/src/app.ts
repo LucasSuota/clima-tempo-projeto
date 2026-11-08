@@ -1,6 +1,7 @@
 import express from 'express';
 import type { Pool } from 'pg';
 import { DEFAULT_STALE_DAYS } from './config.js';
+import { createCorsMiddleware } from './middlewares/cors.js';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler.js';
 import { createClientRepository } from './repositories/client-repository.js';
 import { createFollowUpRepository } from './repositories/follow-up-repository.js';
@@ -17,6 +18,8 @@ import { createQuoteService } from './services/quote-service.js';
 export interface AppDependencies {
   pool: Pool;
   staleDays?: number;
+  // Origin allowed to call the API from a browser; unset means same-origin only.
+  corsOrigin?: string;
   // Injected so tests can pin "today"; production uses the real clock.
   now?: () => Date;
 }
@@ -24,10 +27,12 @@ export interface AppDependencies {
 export function createApp({
   pool,
   staleDays = DEFAULT_STALE_DAYS,
+  corsOrigin,
   now = () => new Date(),
 }: AppDependencies): express.Express {
   const app = express();
 
+  app.use(createCorsMiddleware(corsOrigin));
   app.use(express.json());
   const clients = createClientRepository(pool);
   const owners = createOwnerRepository(pool);
