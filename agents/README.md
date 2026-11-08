@@ -10,8 +10,8 @@ As regras do projeto ficam no [AGENTS.md](../AGENTS.md). Cada arquivo aqui defin
 |---|---|---|---|
 | [orchestrator](orchestrator.md) | Ponto de entrada: triagem, roteamento, pontos de parada, conferência final | Não | Não |
 | [issue-creator](issue-creator.md) | Transforma um pedido em issue no GitHub | Não | Cria issue |
-| [issue-planner](issue-planner.md) | Lê a issue e o código e escreve o plano em TDD | Não | Só lê |
-| [issue-coder](issue-coder.md) | Implementa o plano, etapa por etapa, com testes | Sim | Não |
+| [issue-planner](issue-planner.md) | Lê a issue e o código e escreve o plano | Não | Só lê |
+| [issue-coder](issue-coder.md) | Implementa o plano, etapa por etapa, com os testes estritamente necessários | Sim | Não |
 | [issue-reviewer](issue-reviewer.md) | Revisa o diff contra o AGENTS.md e refatora dentro do escopo | Sim (refatoração) | Não |
 | [doc-writer](doc-writer.md) | Mantém os `README.md` de cada pasta com código | Só docs | Não |
 | [git-manager](git-manager.md) | Branch, commits e PR | Não | Sim |

@@ -2,7 +2,7 @@
 
 Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de instalação e manutenção de ar-condicionado. A ideia é que nenhum orçamento fique sem retorno: todos num só lugar, com o status de cada um, o responsável e o histórico de contatos com o cliente.
 
-> **Estado atual:** setup do repositório. O banco já sobe com Docker. Server e web estão em desenvolvimento (veja o [Roadmap](#roadmap)).
+> **Estado atual:** setup do repositório. O banco já sobe com Docker e o esqueleto do server responde `GET /api/health`. O restante do server e a web estão em desenvolvimento (veja o [Roadmap](#roadmap)).
 
 ## Stack
 
@@ -18,7 +18,7 @@ Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de ins
 ## Pré-requisitos
 
 - [Docker](https://docs.docker.com/get-docker/) com Docker Compose v2 (`docker compose version`)
-- [Node.js](https://nodejs.org/) 20 ou mais novo, com npm (a partir da etapa do server)
+- [Node.js](https://nodejs.org/) 22.13 ou mais novo, com npm (para o server)
 
 ## Como rodar
 
@@ -47,9 +47,20 @@ Para abrir um terminal SQL:
 docker compose exec db psql -U climafacil -d climafacil
 ```
 
-### 3. Server e web
+### 3. Server
 
-Em breve. Esta seção vai trazer os comandos para subir a API e o front, e depois um único `docker compose up` para tudo.
+```bash
+npm --prefix server install
+npm --prefix server run dev      # API em http://localhost:3333
+curl http://localhost:3333/api/health
+npm --prefix server run check    # typecheck + lint + format + testes
+```
+
+Os testes de API usam o banco `climafacil_test`, então o banco precisa estar no ar. Detalhes em [server/README.md](server/README.md).
+
+### 4. Web
+
+Em breve. Depois dela, um único `docker compose up` para tudo.
 
 ### Recriar o banco do zero
 
@@ -83,7 +94,7 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [web/](
 |---|---|---|
 | 0 | Setup: regras, agentes, Docker Compose do banco | ✅ |
 | 1 | Esquema do banco e dados fictícios | ⏳ |
-| 2 | API com testes | ⬜ |
+| 2 | API com testes | ⏳ |
 | 3 | Levantamento de requisitos da parte livre | ⬜ |
 | 4 | Interface web | ⬜ |
 | 5 | Tudo no Docker Compose | ⬜ |
@@ -91,7 +102,7 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [web/](
 
 ## Como o desenvolvimento é organizado
 
-O trabalho segue um fluxo por issues, com papéis definidos em [agents/](agents/README.md): triagem → issue → plano em TDD → implementação → revisão → documentação → PR. As regras que todo mundo segue (camadas do server, contrato da API, convenções do banco, nomes, testes e segurança) estão no [AGENTS.md](AGENTS.md).
+O trabalho segue um fluxo por issues, com papéis definidos em [agents/](agents/README.md): triagem → issue → plano → implementação → revisão → documentação → PR. As regras que todo mundo segue (camadas do server, contrato da API, convenções do banco, nomes, testes e segurança) estão no [AGENTS.md](AGENTS.md).
 
 ## Decisões técnicas
 

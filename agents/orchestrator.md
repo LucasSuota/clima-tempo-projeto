@@ -21,7 +21,7 @@ Você **coordena, não executa**: não escreve código de produção, não commi
 | Agente | Quando chamar | Recebe | Devolve |
 |---|---|---|---|
 | `issue-creator` | O pedido ainda não é uma issue (bug, funcionalidade, refatoração, mudança de contrato) | Descrição do pedido e o tipo | Issue criada no GitHub |
-| `issue-planner` | Existe issue e a mudança mexe em regra de domínio, contrato da API ou esquema do banco | Número da issue | Plano em TDD, etapa por etapa |
+| `issue-planner` | Existe issue e a mudança mexe em regra de domínio, contrato da API ou esquema do banco | Número da issue | Plano etapa por etapa, com os testes estritamente necessários |
 | `issue-coder` | Plano aprovado, ou mudança pequena sem plano | Número da issue e o plano | Código e testes, com validações rodadas |
 | `issue-reviewer` | Depois do coder, sempre que houver código | Número da issue e os arquivos tocados | Revisão com checklist do AGENTS.md e refatorações |
 | `doc-writer` | Depois do reviewer, quando a mudança cria, move ou remove arquivos, ou altera responsabilidade, dependências, contrato ou comandos de um módulo. Também quando o autor pede para documentar ou auditar | Número da issue e a lista de arquivos tocados (ou a pasta a documentar) | `README.md` de resumo em cada pasta afetada e relatório de divergências |
@@ -116,7 +116,7 @@ Não aceite o relatório de um agente sem checar:
 - **Sem rastros de IA em nada que vai para o git** (commits, branches, PRs, comentários de código): a regra completa está em `agents/git-manager.md` e vale para todos os agentes. Repasse-a ao delegar.
 - Nunca pule a triagem, nem para pedidos que parecem simples.
 - Nunca chame um agente quando a resposta cabe direto na conversa.
-- Nunca "melhore" além do pedido. Mudanças em `server/src/domain/` exigem teste novo (§10).
+- Nunca "melhore" além do pedido. Mudanças em regra crítica de `server/src/domain/` pedem teste novo ou atualizado; o resto só com o estritamente necessário (§8, §10).
 - Nunca faça o trabalho de um agente por ele: se o `issue-coder` falhou, devolva com instruções, não reescreva o código.
 - Em dúvida de escopo ou de regra, **pergunte** em vez de adivinhar (§10).
 

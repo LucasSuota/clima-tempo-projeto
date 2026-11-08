@@ -18,7 +18,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
 
-**A ordem importa.** Uma camada de cima só começa quando a de baixo está testada: nada de tela antes da rota existir, nem rota antes da regra de domínio ter teste. Pedido fora de ordem: avise e proponha a tarefa de baixo.
+**A ordem importa.** Uma camada de cima só começa quando a de baixo está pronta: nada de tela antes da rota existir, nem rota antes da regra de domínio. Os testes são só os estritamente necessários (§8). Pedido fora de ordem: avise e proponha a tarefa de baixo.
 
 ## §2. Escopo (o que será feito)
 
@@ -177,8 +177,9 @@ Padrão web para nomes:
 
 ## §8. Testes
 
-- **TDD no domínio e nos serviços**: Red → Green → Refactor. O teste nasce antes do código e falha pelo motivo certo.
-- Prioridade de cobertura: regras de `domain/` (feliz, erro e borda, com destaque para limites de data), depois os serviços, depois a API.
+- **Sem TDD.** O projeto não exige teste antes do código nem o ciclo Red → Green → Refactor. Escreva **apenas os testes estritamente necessários**, depois ou junto do código.
+- O que vale testar: as regras críticas de `domain/` (caminho feliz, erro e limites de data) e o mínimo de API (um caminho feliz e um erro por rota relevante). Serviços e front só quando houver lógica não trivial.
+- Não é preciso teste para toda mudança: ajuste de texto, configuração, refatoração sem efeito de comportamento e código trivial ficam sem teste novo.
 - Testes de API com **supertest** sobre `app.ts`, contra o banco `climafacil_test` (`DATABASE_URL_TEST`), **nunca** o de dev. Cada teste prepara e limpa os próprios dados.
 - Teste de API confere status, corpo e formato de erro (§5.3).
 - Data "hoje" sempre injetada nos testes. Nenhum teste depende do relógio real nem de rede.
@@ -199,7 +200,7 @@ Padrão web para nomes:
 
 - Todo código entregue precisa ser entendido e explicável pelo autor. Se uma solução não é simples de explicar, simplifique.
 - Em dúvida de escopo ou de regra, **pergunte** em vez de adivinhar.
-- Mudança em `domain/` exige teste novo ou atualizado.
+- Mudança em regra crítica de `domain/` pede teste novo ou atualizado; nas demais, só o estritamente necessário (§8).
 - Commits, branches e PRs não levam rastro de IA (§13).
 
 ## §11. Linha de corte e prioridades
@@ -229,7 +230,7 @@ Padrão web para nomes:
 Uma issue só está pronta quando:
 
 - [ ] `npm run check` passa em cada pacote tocado (`server/`, `web/`);
-- [ ] há teste novo para a lógica nova, e regras de `domain/` cobrem feliz, erro e borda;
+- [ ] as regras críticas novas ou alteradas de `domain/` têm teste (feliz, erro e borda); fora delas, só os testes estritamente necessários (§8);
 - [ ] o contrato está inalterado, ou a mudança está sinalizada e o front foi ajustado no mesmo PR;
 - [ ] nada do §3 entrou; nenhuma dependência nova sem justificativa;
 - [ ] SQL parametrizado, sem segredo no diff, só dados fictícios;

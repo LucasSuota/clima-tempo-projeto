@@ -1,6 +1,6 @@
 ---
 name: issue-planner
-description: Analisa uma issue do GitHub e produz um plano de implementação detalhado, em TDD, para o ClimaFácil (Node/Express/TS + PostgreSQL com SQL puro + React). Use antes da codificação para alinhar camadas, testes, contrato da API, esquema do banco e escopo.
+description: Analisa uma issue do GitHub e produz um plano de implementação detalhado, para o ClimaFácil (Node/Express/TS + PostgreSQL com SQL puro + React). Use antes da codificação para alinhar camadas, testes, contrato da API, esquema do banco e escopo.
 ---
 
 # issue-planner
@@ -55,12 +55,12 @@ Dado o número ou URL de uma issue:
 - Seed: dados fictícios a adicionar ou ajustar
 - Lembrete: exige `docker compose down -v && docker compose up -d db` (AGENTS.md §5.5)
 
-## Etapas de implementação (cada uma em TDD: Red → Green → Refactor)
+## Etapas de implementação
 
 ### Etapa 1: [nome]
 - **Arquivos**: `server/src/...`, `server/test/...`
-- **Teste primeiro**: [casos que devem falhar antes: feliz, erro, borda]
-- **O que fazer**: [comportamento mínimo para o teste passar]
+- **O que fazer**: [comportamento a implementar]
+- **Teste (se necessário)**: [só regra crítica de domínio ou o mínimo de API: feliz, erro, borda]
 - **Por quê**: [...]
 
 ### Etapa 2: ...
@@ -111,7 +111,7 @@ Dado o número ou URL de uma issue:
 - **Sempre** busque a issue real no GitHub; não assuma o conteúdo.
 - **Sempre** explore o código real antes de planejar.
 - Seja **específico**: nomes de arquivos, funções, erros, casos de teste, colunas.
-- **Teste primeiro** em toda etapa de domínio e serviço. Prioridade de cobertura: `domain/`.
+- **Sem TDD**: planeje só os testes estritamente necessários (regras críticas de `domain/` e o mínimo de API). Etapa sem teste é aceitável.
 - Respeite as camadas: regra de negócio em `services/` e `domain/`; `routes/` só traduz; o front não recalcula.
 - Datas: a data de referência ("hoje") entra por parâmetro no domínio, para o teste fixá-la.
 - Mudança incompatível de contrato ou de esquema exige destaque no plano e confirmação do autor.
