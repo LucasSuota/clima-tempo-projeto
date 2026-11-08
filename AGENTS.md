@@ -13,7 +13,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
 | 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ⏳ próximo |
 | 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⬜ |
-| 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ⬜ |
+| 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⬜ |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
@@ -22,15 +22,72 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 
 ## §2. Escopo (o que será feito)
 
-> ⏳ **Parcial.** Os campos do mínimo obrigatório já bastam para o esquema da etapa 1. A parte livre entra no levantamento de requisitos (etapa 3).
+Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fique sem retorno. Prioridades em §11.
 
-Formato esperado: uma subseção por funcionalidade (`§2.1`, `§2.2`…), cada uma com o objetivo em uma frase, as regras e os critérios de aceite. Separe o **mínimo obrigatório** da **parte livre**.
+### Mínimo obrigatório (p0)
+
+> O enunciado do desafio não está no repositório; o mínimo abaixo é a leitura do README e do esquema.
+
+#### §2.1 Clientes e orçamentos
+
+- **Objetivo:** cadastrar clientes e orçamentos e listá-los com status.
+- **Regras:**
+  - Cliente com nome obrigatório; e-mail e telefone opcionais (únicos quando informados).
+  - Orçamento pertence a um cliente e a um responsável (`owner_id`, obrigatório), com descrição, `total` e status.
+- **Aceite:**
+  - Criar e listar orçamentos com cliente, responsável, total e status.
+  - Entrada inválida responde 422 no formato do §5.3.
+
+#### §2.2 Responsáveis
+
+- **Objetivo:** cadastrar e listar quem responde pelos orçamentos.
+- **Regras:**
+  - `owners` tem `name` e `role` obrigatórios.
+  - Sem login nem permissões; API simples: `GET /api/owners` e `POST /api/owners`.
+- **Aceite:**
+  - Criar e listar responsáveis.
+  - Um orçamento só é criado com responsável existente (404/422 conforme o contrato).
+
+#### §2.3 Status do orçamento
+
+Regras em §7. Transição inválida resulta em erro de domínio.
+
+#### §2.4 Follow-ups
+
+Registro de contato com data e descrição opcional. O histórico é ordenado por data. O efeito no orçamento está em §7.
+
+#### §2.5 Orçamento parado
+
+Definição e X em §7. Calculado no server: a API devolve se o orçamento está parado e há quantos dias está sem contato.
+
+### Parte livre
+
+#### §2.6 Fila "quem contatar hoje" (p1)
+
+Lista os orçamentos parados ordenados por dias sem contato, do maior para o menor. Orçamento sem pendência não aparece.
+
+#### §2.7 Indicadores no topo (p1)
+
+- Total em aberto, valor parado e taxa de conversão, conforme as fórmulas do §7.
+- Somas feitas no SQL.
+- Sem `won` nem `lost`, a taxa aparece como "sem dados", nunca divisão por zero.
+
+### Se sobrar tempo (p2)
+
+Edição e exclusão de orçamento, CRUD completo de clientes e paginação.
 
 ## §3. Fora do escopo (o que não será feito)
 
 ### §3.1 Funcionalidades
 
-> ⏳ A definir no levantamento de requisitos. Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de fora" do README).
+Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de fora" do README).
+
+- **Autenticação e múltiplos usuários:** uso interno; o responsável é só um cadastro, e login pediria perfis e sessão.
+- **Envio real de e-mail/WhatsApp:** depende de provedores e credenciais; o sistema só registra o contato.
+- **Anexos e PDF de orçamento:** exigem armazenamento e geração de documento.
+- **Relatórios exportáveis:** os indicadores cobrem a visão necessária.
+- **Multi-moeda:** o sistema opera em reais (`NUMERIC(12,2)`, BRL).
+- **Notificações automáticas:** exigem agendador e canal; a fila "quem contatar hoje" cumpre o papel.
 
 ### §3.2 Dependências e tecnologia
 
@@ -173,7 +230,46 @@ Padrão web para nomes:
 
 ## §7. Regras de domínio
 
-> ⏳ **A definir.** Aqui entram as regras que o código precisa respeitar e que os testes do `domain/` cobrem: status possíveis e transições permitidas, o que conta como "parado" e como X dias é configurado, o que um follow-up altera no orçamento, e qualquer indicador calculado.
+Regras que o código precisa respeitar e que os testes do `domain/` cobrem.
+
+### Status e transições
+
+- Status: `draft`, `sent`, `negotiating`, `no_response`, `won`, `lost`.
+- Transições permitidas:
+  - `draft` → `sent`
+  - `sent` → `negotiating`, `no_response`, `won`, `lost`
+  - `negotiating` → `no_response`, `won`, `lost`
+  - `no_response` → `negotiating`, `won`, `lost`
+  - `won` e `lost` são finais para status.
+- Qualquer outra transição é erro de domínio.
+- Passar para `sent` exige `sent_at` (não futura). `draft` é o único status com `sent_at` nulo (já garantido por `CHECK` no esquema).
+
+### Orçamento parado
+
+- Só `sent`, `negotiating` e `no_response` podem estar parados.
+- Último contato = data do último follow-up, ou `sent_at` se não houver follow-up.
+- Dias sem contato = hoje − último contato, em dias de calendário. "Hoje" é injetado e segue o fuso `America/Sao_Paulo`.
+- Está parado quando dias sem contato >= X. X padrão: 7, configurável por `STALE_DAYS`.
+- `no_response` é calculado na leitura: o domínio deriva o status efetivo exibido, sem job agendado.
+
+### Follow-up
+
+- Registra a data do contato e zera a contagem de dias sem contato; não muda o status sozinho.
+- Em `won` e `lost` é aceito e apenas registra o contato (não muda status nem afeta indicadores).
+- Em `draft` é recusado (erro de domínio).
+- A data do contato não pode ser futura nem anterior a `sent_at`.
+
+### Validações
+
+- `total` > 0.
+- `sent_at` não pode ser futura, comparada à data "hoje" injetada.
+
+### Indicadores
+
+- Total em aberto = soma de `total` dos orçamentos `sent`, `negotiating` e `no_response`.
+- Valor parado = soma de `total` dos orçamentos parados.
+- Taxa de conversão = `won` / (`won` + `lost`), em quantidade de orçamentos. Sem nenhum `won` nem `lost`, o valor é ausente ("sem dados"), nunca divisão por zero.
+- As somas são feitas no SQL (§5.5).
 
 ## §8. Testes
 
@@ -205,7 +301,11 @@ Padrão web para nomes:
 
 ## §11. Linha de corte e prioridades
 
-> ⏳ A definir no levantamento de requisitos: o que é `p0` (mínimo obrigatório), `p1` (parte livre escolhida) e `p2` (só se sobrar tempo). Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
+- **p0 (mínimo obrigatório):** §2.1 a §2.5 (clientes e orçamentos, responsáveis, status, follow-ups e orçamento parado).
+- **p1 (parte livre escolhida):** §2.6 (fila "quem contatar hoje") e §2.7 (indicadores no topo).
+- **p2 (só se sobrar tempo):** edição e exclusão de orçamento, CRUD completo de clientes e paginação.
+
+Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
 
 ## §12. Segurança
 
