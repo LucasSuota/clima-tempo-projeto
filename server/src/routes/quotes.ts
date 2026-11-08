@@ -16,7 +16,7 @@ const positiveId = (message: string) =>
 // which fails on floating-point values such as 0.07.
 const hasAtMostTwoDecimals = (value: number) => Math.round(value * 100) / 100 === value;
 
-const newQuoteSchema = z.object({
+const quoteFields = {
   clientId: positiveId('Cliente inválido'),
   ownerId: positiveId('Responsável inválido'),
   description: z
@@ -29,9 +29,33 @@ const newQuoteSchema = z.object({
     .gt(0, 'Deve ser maior que zero')
     .max(9999999999.99, 'Valor máximo excedido')
     .refine(hasAtMostTwoDecimals, 'Use no máximo 2 casas decimais'),
+};
+
+const newQuoteSchema = z.object({
+  ...quoteFields,
   status: z.enum(['draft', 'sent'], { error: 'Status inválido' }).default('draft'),
   sentAt: calendarDateSchema.optional(),
 });
+
+// Status and send date change only through PATCH /quotes/:id/status (transition rules, AGENTS.md §7),
+// so they are rejected here instead of being silently ignored.
+const updateQuoteSchema = z
+  .object({
+    clientId: quoteFields.clientId.optional(),
+    ownerId: quoteFields.ownerId.optional(),
+    description: quoteFields.description.optional(),
+    total: quoteFields.total.optional(),
+    status: z.never({ error: 'Use a mudança de status' }).optional(),
+    sentAt: z.never({ error: 'Use a mudança de status' }).optional(),
+  })
+  .refine(
+    (body) =>
+      body.clientId !== undefined ||
+      body.ownerId !== undefined ||
+      body.description !== undefined ||
+      body.total !== undefined,
+    { message: 'Informe ao menos um campo' },
+  );
 
 const statusChangeSchema = z
   .object({
@@ -64,6 +88,17 @@ export function quotesRouter(service: QuoteService): Router {
   router.post('/quotes', async (req, res) => {
     const input = newQuoteSchema.parse(req.body ?? {});
     res.status(201).json(await service.createQuote({ ...input, sentAt: input.sentAt ?? null }));
+  });
+
+  router.patch('/quotes/:id', async (req, res) => {
+    const id = parseId(req.params.id);
+    const { clientId, ownerId, description, total } = updateQuoteSchema.parse(req.body ?? {});
+    res.json(await service.updateQuote(id, { clientId, ownerId, description, total }));
+  });
+
+  router.delete('/quotes/:id', async (req, res) => {
+    await service.deleteQuote(parseId(req.params.id));
+    res.status(204).end();
   });
 
   router.patch('/quotes/:id/status', async (req, res) => {

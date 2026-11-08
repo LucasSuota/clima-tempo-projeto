@@ -1,4 +1,4 @@
-import { changeStatus, validateNewQuote } from '../domain/quotes/quote.js';
+import { changeStatus, validateNewQuote, validateQuoteEdit } from '../domain/quotes/quote.js';
 import type { QuoteDetails } from '../domain/quotes/quote-details.js';
 import type { QuoteStatus } from '../domain/quotes/quote-status.js';
 import { effectiveStatus, evaluateStaleness } from '../domain/quotes/stale-quote.js';
@@ -29,6 +29,13 @@ export interface CreateQuoteInput {
   sentAt: CalendarDate | null;
 }
 
+export interface UpdateQuoteInput {
+  clientId?: number;
+  ownerId?: number;
+  description?: string;
+  total?: number;
+}
+
 export interface QuoteService {
   listQuotes(): Promise<{ items: QuoteResponse[]; total: number }>;
   getQuote(id: number): Promise<QuoteResponse>;
@@ -37,6 +44,8 @@ export interface QuoteService {
     id: number,
     input: { status: QuoteStatus; sentAt: CalendarDate | null },
   ): Promise<QuoteResponse>;
+  updateQuote(id: number, input: UpdateQuoteInput): Promise<QuoteResponse>;
+  deleteQuote(id: number): Promise<void>;
 }
 
 export interface QuoteServiceDependencies {
@@ -127,6 +136,22 @@ export function createQuoteService({
       );
       await quotes.updateStatus(id, next.status, next.sentAt);
       return toResponse(await findOrFail(id), today);
+    },
+
+    async updateQuote(id, input) {
+      validateQuoteEdit(input);
+      const quote = await findOrFail(id);
+      // Fields left out of the edit keep the quote's current references.
+      await assertReferencesExist(
+        input.clientId ?? quote.client.id,
+        input.ownerId ?? quote.owner.id,
+      );
+      await quotes.update(id, input);
+      return toResponse(await findOrFail(id), toCalendarDate(now()));
+    },
+
+    async deleteQuote(id) {
+      if (!(await quotes.remove(id))) throw new QuoteNotFoundError();
     },
   };
 }
