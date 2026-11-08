@@ -12,7 +12,7 @@ Decide status, validade de datas e valores, se um orçamento está parado e os i
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `shared/calendar-date.ts`       | `CalendarDate` (`'YYYY-MM-DD'`), `isCalendarDate`, `daysBetween` (via UTC), `toCalendarDate` (padrão `America/Sao_Paulo`) |
 | `quotes/quote-status.ts`        | `QUOTE_STATUSES`, `ALLOWED_TRANSITIONS`, `OPEN_STATUSES`, `assertTransition`                                              |
-| `quotes/quote.ts`               | Tipos `Quote` e `NewQuoteInput`; `validateNewQuote` e `changeStatus`                                                      |
+| `quotes/quote.ts`               | Tipos `Quote`, `NewQuoteInput` e `QuoteEditInput`; `validateNewQuote`, `validateQuoteEdit` e `changeStatus`               |
 | `quotes/quote-details.ts`       | Tipo `QuoteDetails`: leitura do orçamento com `client`, `owner` e `lastFollowUpAt` (só tipo, sem regra)                   |
 | `quotes/stale-quote.ts`         | `getLastContact`, `evaluateStaleness`, `effectiveStatus`                                                                  |
 | `follow-ups/follow-up.ts`       | Tipo `FollowUp`                                                                                                           |

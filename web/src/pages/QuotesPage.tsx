@@ -53,7 +53,14 @@ export function QuotesPage() {
         <h1 className="text-2xl font-bold md:text-3xl">Orçamentos</h1>
         {!formOpen && <Button onClick={() => setFormOpen(true)}>Novo orçamento</Button>}
       </div>
-      {formOpen && <QuoteForm onCancel={() => setFormOpen(false)} />}
+      {formOpen && (
+        <QuoteForm
+          onSaved={(created) => {
+            window.location.hash = quoteHref(created.id);
+          }}
+          onCancel={() => setFormOpen(false)}
+        />
+      )}
       <AsyncView state={quotes}>
         {(data) =>
           data.items.length === 0 ? (

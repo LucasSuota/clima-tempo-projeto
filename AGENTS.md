@@ -12,9 +12,9 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 |---|---|---|
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
 | 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito |
-| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio e APIs de responsáveis, clientes, orçamentos e follow-ups prontos; fila e indicadores em PRs) |
+| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio e APIs de responsáveis, clientes, orçamentos (com edição e exclusão) e follow-ups prontos; fila e indicadores em PRs) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
-| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (telas do mínimo obrigatório e painel com fila e indicadores prontos; o painel precisa dos endpoints da fila e dos indicadores na `main`) |
+| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (telas do mínimo obrigatório (com edição e exclusão de orçamento) e painel com fila e indicadores prontos; o painel precisa dos endpoints da fila e dos indicadores na `main`) |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⏳ em andamento (`docker compose up --build` sobe banco, API e web em http://localhost:8080; o painel só carrega por inteiro com os endpoints da fila e dos indicadores na `main`) |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⏳ em andamento (README final escrito; conclui com o merge do PR) |
 
@@ -35,9 +35,11 @@ Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fiqu
   - Cliente com nome obrigatório; e-mail e telefone opcionais (únicos quando informados).
   - Cliente pode ser editado (`PUT /api/clients/:id`, corpo completo, como no `POST`: e-mail e telefone ausentes limpam o campo) e excluído (`DELETE /api/clients/:id`, `204`). Excluir cliente com orçamentos é recusado com 422 (erro de domínio, `detail` em português), e não 409, porque o §5.3 só prevê 404 e 422 para erros de negócio.
   - Orçamento pertence a um cliente e a um responsável (`owner_id`, obrigatório), com descrição, `total` e status.
+  - Orçamento pode ser editado (`PATCH /api/quotes/:id`, parcial: campo ausente mantém o valor; aceita `description`, `total`, `clientId` e `ownerId`, ao menos um) e excluído (`DELETE /api/quotes/:id`, `204`; os follow-ups vão junto, por `ON DELETE CASCADE`). Status e `sentAt` não são editáveis aí: mandá-los responde 422 ("Use a mudança de status"), porque só mudam pelo §2.3. A edição vale em qualquer status.
 - **Aceite:**
   - Criar e listar orçamentos com cliente, responsável, total e status.
   - Editar e excluir cliente; cliente inexistente responde 404, e excluir cliente com orçamentos responde 422 sem apagar nada.
+  - Editar e excluir orçamento; orçamento inexistente responde 404, e `clientId`/`ownerId` inexistentes ou `total` inválido respondem 422.
   - Entrada inválida responde 422 no formato do §5.3.
   - Listagens devolvem `{ "items": [...], "total": n }` desde o início (evita mudança incompatível quando entrar a paginação).
 
@@ -55,7 +57,7 @@ Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fiqu
 
 Regras em §7. Transição inválida resulta em erro de domínio.
 
-- A mudança de status é `PATCH /api/quotes/:id/status`, com corpo `{ "status": "...", "sentAt"?: "YYYY-MM-DD" }`; `sentAt` só vale quando o novo status é `sent`.
+- A mudança de status é `PATCH /api/quotes/:id/status`, com corpo `{ "status": "...", "sentAt"?: "YYYY-MM-DD" }`; `sentAt` só vale quando o novo status é `sent`. É o único caminho para mudar status e data de envio; a edição do orçamento (§2.1) não os altera.
 - A resposta do orçamento traz o status **efetivo** (um `sent` parado aparece como `no_response`), `isStale`, `daysWithoutContact`, `client` (`id`, `name`) e `owner` (`id`, `name`, `role`).
 
 #### §2.4 Follow-ups
@@ -83,7 +85,7 @@ Lista os orçamentos parados ordenados por dias sem contato, do maior para o men
 
 ### Se sobrar tempo (p2)
 
-Edição e exclusão de orçamento e paginação. O CRUD completo de clientes já está feito (§2.1).
+Paginação. O CRUD completo de clientes e a edição e exclusão de orçamento já estão feitos (§2.1).
 
 ## §3. Fora do escopo (o que não será feito)
 
@@ -348,7 +350,7 @@ Regras que o código precisa respeitar e que os testes do `domain/` cobrem.
 
 - **p0 (mínimo obrigatório):** §2.1 a §2.5 (clientes e orçamentos, responsáveis, status, follow-ups e orçamento parado).
 - **p1 (parte livre escolhida):** §2.6 (fila "quem contatar hoje") e §2.7 (indicadores no topo).
-- **p2 (só se sobrar tempo):** edição e exclusão de orçamento e paginação (o CRUD completo de clientes já está feito, §2.1).
+- **p2 (só se sobrar tempo):** paginação (o CRUD completo de clientes e a edição e exclusão de orçamento já estão feitos, §2.1).
 
 Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
 

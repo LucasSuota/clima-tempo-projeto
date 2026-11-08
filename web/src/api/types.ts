@@ -76,6 +76,14 @@ export interface NewQuote {
   sentAt?: CalendarDate;
 }
 
+/** Status and send date are not editable here; they change through `QuoteStatusChange`. */
+export interface QuoteUpdate {
+  clientId?: number;
+  ownerId?: number;
+  description?: string;
+  total?: number;
+}
+
 export interface QuoteStatusChange {
   status: QuoteStatus;
   sentAt?: CalendarDate;

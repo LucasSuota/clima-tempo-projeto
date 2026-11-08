@@ -12,11 +12,20 @@ export interface NewQuoteRecord {
   sentAt: CalendarDate | null;
 }
 
+export interface QuotePatchRecord {
+  clientId?: number;
+  ownerId?: number;
+  description?: string;
+  total?: number;
+}
+
 export interface QuoteRepository {
   findAll(): Promise<QuoteDetails[]>;
   findById(id: number): Promise<QuoteDetails | undefined>;
   insert(quote: NewQuoteRecord): Promise<number>;
   updateStatus(id: number, status: QuoteStatus, sentAt: CalendarDate | null): Promise<void>;
+  update(id: number, patch: QuotePatchRecord): Promise<boolean>;
+  remove(id: number): Promise<boolean>;
 }
 
 // pg returns bigint and numeric columns as strings.
@@ -94,6 +103,32 @@ export function createQuoteRepository(pool: Pool): QuoteRepository {
         status,
         sentAt,
       ]);
+    },
+
+    // Every editable column is NOT NULL, so null here can only mean "keep the current value".
+    async update(id, patch) {
+      const result = await pool.query(
+        `UPDATE quotes
+         SET client_id = COALESCE($2, client_id),
+             owner_id = COALESCE($3, owner_id),
+             description = COALESCE($4, description),
+             total = COALESCE($5, total)
+         WHERE id = $1`,
+        [
+          id,
+          patch.clientId ?? null,
+          patch.ownerId ?? null,
+          patch.description ?? null,
+          patch.total ?? null,
+        ],
+      );
+      return result.rowCount === 1;
+    },
+
+    // The quote's follow-ups go with it (ON DELETE CASCADE).
+    async remove(id) {
+      const result = await pool.query('DELETE FROM quotes WHERE id = $1', [id]);
+      return result.rowCount === 1;
     },
   };
 }

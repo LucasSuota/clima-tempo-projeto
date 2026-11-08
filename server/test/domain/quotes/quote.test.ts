@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { InvalidStatusTransitionError, ValidationError } from '../../../src/errors.js';
-import { changeStatus, validateNewQuote } from '../../../src/domain/quotes/quote.js';
+import {
+  changeStatus,
+  validateNewQuote,
+  validateQuoteEdit,
+} from '../../../src/domain/quotes/quote.js';
 
 const today = '2026-03-10';
 
@@ -68,6 +72,20 @@ describe('validateNewQuote', () => {
     );
 
     expect(fields).toEqual(['total', 'sentAt']);
+  });
+});
+
+describe('validateQuoteEdit', () => {
+  it('accepts an edit without total', () => {
+    expect(() => validateQuoteEdit({})).not.toThrow();
+  });
+
+  it('accepts the smallest positive total', () => {
+    expect(() => validateQuoteEdit({ total: 0.01 })).not.toThrow();
+  });
+
+  it.each([0, -5, Number.NaN])('rejects total %s', (total) => {
+    expect(fieldsOf(() => validateQuoteEdit({ total }))).toEqual(['total']);
   });
 });
 

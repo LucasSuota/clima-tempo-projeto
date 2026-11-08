@@ -277,3 +277,135 @@ describe('PATCH /api/quotes/:id/status', () => {
     expect(response.body.status).toBe('no_response');
   });
 });
+
+describe('PATCH /api/quotes/:id', () => {
+  it('updates only the sent fields and keeps status and sentAt', async () => {
+    const clientId = await insertClient(pool);
+    const ownerId = await insertOwner(pool);
+    const id = await insertQuote(pool, { clientId, ownerId, status: 'sent', sentAt: '2026-03-01' });
+    const otherClientId = await insertClient(pool, 'Bruno Lima');
+    const otherOwnerId = await insertOwner(pool, 'Carlos Dias', 'Gerente');
+
+    const response = await request(app()).patch(`/api/quotes/${id}`).send({
+      clientId: otherClientId,
+      ownerId: otherOwnerId,
+      description: '  Manutenção de split  ',
+      total: 980.9,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      id,
+      description: 'Manutenção de split',
+      total: 980.9,
+      status: 'no_response',
+      sentAt: '2026-03-01',
+      isStale: true,
+      daysWithoutContact: 14,
+      client: { id: otherClientId, name: 'Bruno Lima' },
+      owner: { id: otherOwnerId, name: 'Carlos Dias', role: 'Gerente' },
+    });
+  });
+
+  it('keeps the fields left out of the body', async () => {
+    const clientId = await insertClient(pool);
+    const ownerId = await insertOwner(pool);
+    const id = await insertQuote(pool, { clientId, ownerId, description: 'Original', total: 500 });
+
+    const response = await request(app()).patch(`/api/quotes/${id}`).send({ total: 750 });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      description: 'Original',
+      total: 750,
+      client: { id: clientId },
+      owner: { id: ownerId },
+    });
+  });
+
+  it('answers 422 when the total is not greater than zero', async () => {
+    const id = await insertQuote(pool, {
+      clientId: await insertClient(pool),
+      ownerId: await insertOwner(pool),
+    });
+
+    const response = await request(app()).patch(`/api/quotes/${id}`).send({ total: 0 });
+
+    expect(response.status).toBe(422);
+    expect(response.body).toEqual({
+      detail: 'Dados inválidos',
+      errors: [{ field: 'total', message: 'Deve ser maior que zero' }],
+    });
+  });
+
+  it('answers 422 only for the client that does not exist', async () => {
+    const id = await insertQuote(pool, {
+      clientId: await insertClient(pool),
+      ownerId: await insertOwner(pool),
+    });
+
+    const response = await request(app()).patch(`/api/quotes/${id}`).send({ clientId: 999 });
+
+    expect(response.status).toBe(422);
+    expect(response.body.errors).toEqual([
+      { field: 'clientId', message: 'Cliente não encontrado' },
+    ]);
+  });
+
+  it('answers 422 for an empty body and for status or sentAt in the body', async () => {
+    const id = await insertQuote(pool, {
+      clientId: await insertClient(pool),
+      ownerId: await insertOwner(pool),
+    });
+
+    const empty = await request(app()).patch(`/api/quotes/${id}`).send({});
+    const withStatus = await request(app())
+      .patch(`/api/quotes/${id}`)
+      .send({ status: 'won', sentAt: '2026-03-01', total: 100 });
+
+    expect(empty.status).toBe(422);
+    expect(empty.body.errors).toEqual([{ field: '', message: 'Informe ao menos um campo' }]);
+    expect(withStatus.status).toBe(422);
+    expect(withStatus.body.errors).toEqual([
+      { field: 'status', message: 'Use a mudança de status' },
+      { field: 'sentAt', message: 'Use a mudança de status' },
+    ]);
+  });
+
+  it('answers 404 for an unknown or malformed id', async () => {
+    const unknown = await request(app()).patch('/api/quotes/999').send({ total: 100 });
+    const malformed = await request(app()).patch('/api/quotes/abc').send({ total: 100 });
+
+    for (const response of [unknown, malformed]) {
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ detail: 'Orçamento não encontrado', errors: [] });
+    }
+  });
+});
+
+describe('DELETE /api/quotes/:id', () => {
+  it('answers 204 and removes the quote with its follow-ups', async () => {
+    const clientId = await insertClient(pool);
+    const ownerId = await insertOwner(pool);
+    const id = await insertQuote(pool, { clientId, ownerId, status: 'sent', sentAt: '2026-03-01' });
+    await insertFollowUp(pool, id, '2026-03-05');
+
+    const response = await request(app()).delete(`/api/quotes/${id}`);
+
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
+    expect((await request(app()).get(`/api/quotes/${id}`)).status).toBe(404);
+    const { rows } = await pool.query<{ count: string }>('SELECT count(*) FROM follow_ups');
+    expect(rows[0]?.count).toBe('0');
+  });
+
+  it('answers 404 for an unknown or malformed id', async () => {
+    const unknown = await request(app()).delete('/api/quotes/999');
+    const malformed = await request(app()).delete('/api/quotes/abc');
+
+    for (const response of [unknown, malformed]) {
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ detail: 'Orçamento não encontrado', errors: [] });
+    }
+  });
+});

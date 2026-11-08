@@ -25,12 +25,15 @@ function sentAtError(sentAt: CalendarDate | null, today: CalendarDate): string |
   return null;
 }
 
+function totalError(total: number): string | null {
+  return Number.isFinite(total) && total > 0 ? null : 'Deve ser maior que zero';
+}
+
 export function validateNewQuote(input: NewQuoteInput, today: CalendarDate): void {
   const errors: FieldError[] = [];
 
-  if (!Number.isFinite(input.total) || input.total <= 0) {
-    errors.push({ field: 'total', message: 'Deve ser maior que zero' });
-  }
+  const totalMessage = totalError(input.total);
+  if (totalMessage) errors.push({ field: 'total', message: totalMessage });
 
   if (input.status === 'draft') {
     if (input.sentAt !== null) {
@@ -42,6 +45,17 @@ export function validateNewQuote(input: NewQuoteInput, today: CalendarDate): voi
   }
 
   if (errors.length > 0) throw new ValidationError(errors);
+}
+
+export interface QuoteEditInput {
+  total?: number;
+}
+
+// Status and sentAt are not editable here, so only a provided total needs checking.
+export function validateQuoteEdit(input: QuoteEditInput): void {
+  if (input.total === undefined) return;
+  const message = totalError(input.total);
+  if (message) throw new ValidationError([{ field: 'total', message }]);
 }
 
 export interface StatusChangeInput {
