@@ -61,7 +61,7 @@ As regras de negócio vivem em `src/domain/` (funções puras, sem I/O; veja [sr
 ```
 src/
 ├── index.ts, app.ts, config.ts, db.ts, errors.ts
-├── middlewares/    # cors.ts, error-handler.ts, validate-body.ts
+├── middlewares/    # cors.ts, error-handler.ts
 ├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients) e shared/ (calendar-date.ts)
 ├── repositories/   # único lugar com SQL; <recurso>-repository.ts
 ├── services/       # casos de uso; <recurso>-service.ts
@@ -80,7 +80,7 @@ Regras:
 ## Como se conecta
 
 - **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `middlewares/error-handler.ts`, `routes/index.ts`, os serviços e os repositórios dos recursos e dos indicadores; `routes/indicators.ts` → `services/indicator-service.ts` → `repositories/indicator-repository.ts`, `services/quote-service.ts` (só `listStaleQuotes`), `domain/indicators/` e `OPEN_STATUSES` de `domain/quotes/quote-status.ts`; `routes/quotes.ts` → `services/quote-service.ts` → `repositories/quote-repository.ts`, `client-repository.ts`, `owner-repository.ts` (só `existsById`) e `domain/quotes/`; `routes/follow-ups.ts` → `services/follow-up-service.ts` → `repositories/follow-up-repository.ts`, `quote-repository.ts` e `domain/follow-ups/`; `routes/follow-ups.ts` importa `parseId` e `calendarDateSchema` de `routes/quotes.ts`; `routes/owners.ts` → `services/owner-service.ts` → `repositories/owner-repository.ts` → `domain/owners/owner.ts`; `routes/clients.ts` → `services/client-service.ts` → `repositories/client-repository.ts` → `domain/clients/client.ts` (o repositório também importa `ValidationError` de `errors.ts`); `middlewares/error-handler.ts` importa `errors.ts`; `domain/` importa só a si mesmo e `errors.ts` (nenhum import de `express`, `pg` ou `config.ts`).
-- **É usado por:** nada ainda no repositório (o `web/` consumirá `/api` na etapa 4).
+- **É usado por:** o `web/` (chama `/api` pelo proxy do Vite em dev e pelo nginx no Docker) e o serviço `server` do `docker-compose.yml` (usa o `Dockerfile` desta pasta).
 - **Contratos e dados:** `GET /api/health`; erro sempre `{ "detail", "errors": [{ "field", "message" }] }`. Tabelas `owners`, `clients`, `quotes` e `follow_ups`.
   - `GET /api/owners`: 200 com `{ "items": [{ "id", "name", "role" }], "total" }`, ordenado por nome. `id` é `number`.
   - `POST /api/owners`: corpo `{ "name", "role" }` (`name` até 120 caracteres, `role` até 80, ambos obrigatórios e aparados); 201 com o responsável criado; 422 com o formato de erro único se inválido.

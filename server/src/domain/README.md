@@ -41,4 +41,4 @@ Decide status, validade de datas e valores, se um orçamento está parado e os i
 
 - Mudou regra aqui: teste novo ou atualizado no mesmo commit (AGENTS.md §10).
 - Não importar `express`, `pg`, `config.ts` nem usar `new Date()` para "hoje".
-- As regras de AGENTS.md §7 ainda estão "a definir": este código é a implementação atual, não a especificação.
+- As regras estão em AGENTS.md §7: mudou uma regra no código, atualize o §7 (ou relate ao autor) para os dois não divergirem.
