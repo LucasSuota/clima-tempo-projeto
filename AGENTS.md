@@ -12,9 +12,9 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 |---|---|---|
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
 | 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito |
-| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio pronto; repositórios, serviços e rotas pendentes) |
+| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio e APIs de responsáveis, clientes, orçamentos e follow-ups prontos; fila e indicadores em PRs) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
-| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⬜ |
+| 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⏳ em andamento (esqueleto pronto; telas pendentes) |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
 
@@ -211,7 +211,9 @@ web/src/
 ├── api/          # cliente HTTP tipado (fetch) e tipos do contrato (types.ts)
 ├── components/   # componentes reutilizáveis
 ├── pages/        # telas
-└── hooks/        # hooks de dados e de UI
+├── hooks/        # hooks de dados e de UI
+└── format.ts     # formatação pt-BR (moeda, data, percentual) e rótulos dos status
+web/test/         # testes (formatação e cliente HTTP)
 ```
 
 - O front **nunca** fala com o banco nem repete regra de negócio: o que é calculado no server (ex.: "está parado") vem pronto da API.
@@ -378,6 +380,8 @@ Uma issue só está pronta quando:
 | Ver o estado | `docker compose ps` |
 | Abrir o psql | `docker compose exec db psql -U climafacil -d climafacil` |
 | Recriar o banco do zero (reaplica `db/init/`) | `docker compose down -v && docker compose up -d db` |
+| Subir o server (API em http://localhost:3333) | `npm --prefix server run dev` |
+| Subir o web (Vite em http://localhost:5173, com proxy de `/api` para o server) | `npm --prefix web run dev` |
 | Validar um pacote | `npm --prefix server run check` · `npm --prefix web run check` |
 
 Todo pacote Node expõe os scripts: `dev`, `build`, `typecheck`, `lint`, `format:check`, `test` e `check` (`typecheck` + `lint` + `format:check` + `test`). Eles passam a valer quando o pacote é criado (etapas 2 e 4).
