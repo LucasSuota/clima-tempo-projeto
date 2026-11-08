@@ -41,7 +41,7 @@ Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fiqu
   - Editar e excluir cliente; cliente inexistente responde 404, e excluir cliente com orçamentos responde 422 sem apagar nada.
   - Editar e excluir orçamento; orçamento inexistente responde 404, e `clientId`/`ownerId` inexistentes ou `total` inválido respondem 422.
   - Entrada inválida responde 422 no formato do §5.3.
-  - Listagens devolvem `{ "items": [...], "total": n }` desde o início (evita mudança incompatível quando entrar a paginação).
+  - Listagens devolvem `{ "items": [...], "total": n }` e aceitam paginação opcional por `limit` e `offset` (§5.3).
 
 #### §2.2 Responsáveis
 
@@ -82,7 +82,7 @@ Lista os orçamentos parados ordenados por dias sem contato, do maior para o men
 
 ### Se sobrar tempo (p2)
 
-Paginação. O CRUD completo de clientes e a edição e exclusão de orçamento já estão feitos (§2.1).
+Tudo feito: CRUD completo de clientes, edição e exclusão de orçamento (§2.1) e paginação das listagens (§5.3).
 
 ## §3. Fora do escopo (o que não será feito)
 
@@ -151,7 +151,7 @@ server/src/
 │   ├── quotes/         # quote.ts (tipos), quote-status.ts (transições), stale-quote.ts (parado, dias sem contato, status efetivo)
 │   ├── follow-ups/     # follow-up.ts (tipo), follow-up-rules.ts (validações de data e de status)
 │   ├── indicators/     # indicators.ts (conversão e agregações puras)
-│   ├── shared/         # calendar-date.ts (data de calendário, dias entre datas)
+│   ├── shared/         # calendar-date.ts (data de calendário, dias entre datas), pagination.ts (PageParams)
 │   ├── owners/         # owner.ts (tipo)
 │   └── clients/        # client.ts (tipo)
 ├── repositories/       # único lugar com SQL; um arquivo por recurso
@@ -159,7 +159,7 @@ server/src/
 ├── services/           # casos de uso; um arquivo por recurso
 │   └── quote-service.ts, owner-service.ts, client-service.ts, follow-up-service.ts, indicator-service.ts
 └── routes/             # um router por recurso + schemas zod de entrada no mesmo arquivo
-    └── index.ts (monta /api), health.ts, quotes.ts, owners.ts, clients.ts, follow-ups.ts, indicators.ts
+    └── index.ts (monta /api), pagination.ts (limit e offset da query), health.ts, quotes.ts, owners.ts, clients.ts, follow-ups.ts, indicators.ts
 server/test/            # espelha src/
 ├── domain/quotes/stale-quote.test.ts
 ├── routes/quotes.test.ts
@@ -196,7 +196,7 @@ routes  →  services  →  domain
 - Prefixo `/api`. Recursos no plural, em `kebab-case`: `/api/quotes`, `/api/quotes/:id/follow-ups`.
 - JSON nos dois sentidos; campos em `camelCase` na API e `snake_case` no banco. A conversão acontece no repositório.
 - Toda entrada passa por um schema zod. Os schemas ficam em `routes/` junto do router que os usa.
-- Listagens devolvem `{ "items": [...], "total": n }` desde o início, para a paginação futura não ser mudança incompatível.
+- Listagens devolvem `{ "items": [...], "total": n }`. `GET /api/owners`, `/api/clients`, `/api/quotes` e `/api/quotes/:id/follow-ups` aceitam `limit` (inteiro de 1 a 100) e `offset` (inteiro >= 0), ambos opcionais; valor inválido responde 422 no formato abaixo. Sem `limit` a lista vem inteira, como antes. `total` é sempre o do conjunto completo, não o da página. A fila e os indicadores não paginam: precisam do conjunto inteiro.
 - Dinheiro trafega como `number` no JSON (`total: 1500.5`), com no máximo 2 casas decimais; no banco continua `NUMERIC(12,2)`.
 - Formato de erro único. Chaves em inglês, mensagens em português (são exibidas ao usuário, §6):
 
@@ -215,8 +215,9 @@ web/src/
 ├── api/          # cliente HTTP tipado (fetch) e tipos do contrato (types.ts)
 ├── components/   # componentes reutilizáveis (tabela/cards, formulários, badges, estados)
 ├── pages/        # telas
-├── hooks/        # hooks de dados e de UI (useAsync, useSubmit, useHashRoute)
+├── hooks/        # hooks de dados e de UI (useAsync, usePagedList, useSubmit, useHashRoute)
 ├── router.ts     # navegação por hash (parseRoute), sem biblioteca de router
+├── pagination.ts # contas de página (PAGE_SIZE, pageCount, pageRange...)
 ├── forms.ts      # leitura de valor digitado e mapeamento de erros 422 para os campos
 └── format.ts     # formatação pt-BR (moeda, data, dias, percentual) e rótulos dos status
 web/test/         # testes (formatação, rotas, formulários e cliente HTTP)
@@ -345,7 +346,7 @@ Regras que o código precisa respeitar e que os testes do `domain/` cobrem.
 
 - **p0 (mínimo obrigatório):** §2.1 a §2.5 (clientes e orçamentos, responsáveis, status, follow-ups e orçamento parado).
 - **p1 (parte livre escolhida):** §2.6 (fila "quem contatar hoje") e §2.7 (indicadores no topo).
-- **p2 (só se sobrar tempo):** paginação (o CRUD completo de clientes e a edição e exclusão de orçamento já estão feitos, §2.1).
+- **p2 (só se sobrar tempo):** CRUD completo de clientes, edição e exclusão de orçamento e paginação, todos feitos.
 
 Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
 
