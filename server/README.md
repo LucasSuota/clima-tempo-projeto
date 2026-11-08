@@ -33,7 +33,7 @@ Ainda **não** tem regra de negócio, SQL de domínio nem recursos: `domain/`, `
 src/
 ├── index.ts, app.ts, config.ts, db.ts, errors.ts
 ├── middlewares/    # error-handler.ts, validate-body.ts
-├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients)
+├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients) e shared/ (calendar-date.ts)
 ├── repositories/   # único lugar com SQL; <recurso>-repository.ts
 ├── services/       # casos de uso; <recurso>-service.ts
 └── routes/         # index.ts (monta /api), health.ts, <recurso>.ts com os schemas zod

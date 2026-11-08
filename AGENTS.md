@@ -144,6 +144,7 @@ server/src/
 │   ├── quotes/         # quote.ts (tipos), quote-status.ts (transições), stale-quote.ts (parado, dias sem contato, status efetivo)
 │   ├── follow-ups/     # follow-up.ts (tipo), follow-up-rules.ts (validações de data e de status)
 │   ├── indicators/     # indicators.ts (conversão e agregações puras)
+│   ├── shared/         # calendar-date.ts (data de calendário, dias entre datas)
 │   ├── owners/         # owner.ts (tipo)
 │   └── clients/        # client.ts (tipo)
 ├── repositories/       # único lugar com SQL; um arquivo por recurso
