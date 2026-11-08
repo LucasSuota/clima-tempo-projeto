@@ -5,11 +5,13 @@ import { createCorsMiddleware } from './middlewares/cors.js';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler.js';
 import { createClientRepository } from './repositories/client-repository.js';
 import { createFollowUpRepository } from './repositories/follow-up-repository.js';
+import { createIndicatorRepository } from './repositories/indicator-repository.js';
 import { createOwnerRepository } from './repositories/owner-repository.js';
 import { createQuoteRepository } from './repositories/quote-repository.js';
 import { apiRouter } from './routes/index.js';
 import { createClientService } from './services/client-service.js';
 import { createFollowUpService } from './services/follow-up-service.js';
+import { createIndicatorService } from './services/indicator-service.js';
 import { createOwnerService } from './services/owner-service.js';
 import { createQuoteService } from './services/quote-service.js';
 
@@ -40,7 +42,21 @@ export function createApp({
   const ownerService = createOwnerService(owners);
   const quoteService = createQuoteService({ quotes, clients, owners, staleDays, now });
   const followUpService = createFollowUpService({ quotes, followUps, now });
-  app.use('/api', apiRouter({ pool, clientService, ownerService, quoteService, followUpService }));
+  const indicatorService = createIndicatorService({
+    quotes: quoteService,
+    indicators: createIndicatorRepository(pool),
+  });
+  app.use(
+    '/api',
+    apiRouter({
+      pool,
+      clientService,
+      ownerService,
+      quoteService,
+      followUpService,
+      indicatorService,
+    }),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);
