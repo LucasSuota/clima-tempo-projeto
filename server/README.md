@@ -21,6 +21,39 @@ Ainda **não** tem regra de negócio, SQL de domínio nem recursos: `domain/`, `
 | `vitest.config.ts`                                                       | Carrega `../.env` e desliga o paralelismo entre arquivos (um banco de teste só).                                               |
 | `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc.json` | Scripts e ferramentas; `tsconfig.build.json` gera `dist/`.                                                                     |
 
+## Estrutura-alvo
+
+> Alvo para o código **novo** (AGENTS.md §5.2). O que existe hoje está na tabela "O que tem aqui"; nada foi movido ainda.
+
+```
+src/
+├── index.ts, app.ts, config.ts, db.ts, errors.ts
+├── middlewares/    # error-handler.ts, validate-body.ts
+├── domain/         # puro; uma pasta por recurso (quotes, follow-ups, indicators, owners, clients)
+├── repositories/   # único lugar com SQL; <recurso>-repository.ts
+├── services/       # casos de uso; <recurso>-service.ts
+└── routes/         # index.ts (monta /api), health.ts, <recurso>.ts com os schemas zod
+test/               # espelha src/: domain/, routes/, config.test.ts, errors.test.ts, helpers/
+```
+
+Regras:
+
+1. Na raiz de `src/` só `index`, `app`, `config`, `db`, `errors` e as pastas; nada de `utils.ts`, `helpers.ts` ou `types.ts` soltos.
+2. Tipos do domínio em `domain/<recurso>/`; tipos do contrato HTTP inferidos dos schemas zod nas `routes/`.
+3. Schemas zod no arquivo do router; acima de ~80 linhas, extrair para `<recurso>-schemas.ts` na mesma pasta.
+4. Recurso novo = um arquivo (no `domain/`, uma pasta) em cada camada, com o mesmo nome-base.
+5. Só `routes/`, `middlewares/` e `app.ts` importam `express`; só `db.ts` e `repositories/` usam `pg` em execução (`import type { Pool }` é permitido onde o `Pool` chega por parâmetro); `domain/` não importa nada de fora de `domain/`, exceto os erros de `errors.ts`.
+
+## Movimentações pendentes
+
+Para o autor decidir (candidata a issue `chore`):
+
+- `errors.ts` também contém `notFoundHandler` e `errorHandler`: mover para `middlewares/error-handler.ts`, mantendo `DomainError` e `ValidationError` em `errors.ts`.
+- O router de `/api` é montado em `app.ts`: mover para `routes/index.ts`.
+- `test/health.test.ts` -> `test/routes/health.test.ts`, e criar `test/helpers/`.
+- `test/errors.test.ts` testa `errorHandler`: ao mover o handler, esse teste vai para `test/middlewares/error-handler.test.ts`.
+- Já no lugar: `config.ts`, `db.ts`, `routes/health.ts`, `test/config.test.ts`.
+
 ## Como se conecta
 
 - **Depende de:** `express`, `pg`, `zod`; `routes/health.ts` recebe o `Pool` por parâmetro; `app.ts` importa `errors.ts` e `routes/health.ts`.
