@@ -4,7 +4,8 @@ Sistema para acompanhar os orçamentos enviados pela ClimaFácil, empresa de ins
 
 O que o sistema faz:
 
-- cadastra responsáveis, clientes e orçamentos, e muda o status de cada orçamento seguindo as transições permitidas;
+- cadastra responsáveis, clientes e orçamentos (clientes e orçamentos também podem ser editados e excluídos) e muda o status de cada orçamento seguindo as transições permitidas;
+- pagina as listas de orçamentos, clientes e responsáveis (`limit` e `offset` opcionais na API);
 - registra follow-ups (contatos com o cliente) e mostra o histórico;
 - marca como **parado** o orçamento sem contato há `STALE_DAYS` dias (padrão 7) ou mais, e o status `no_response` aparece sozinho para um `sent` parado;
 - no painel inicial, mostra os indicadores (total em aberto, valor parado, taxa de conversão) e a fila "quem contatar hoje", do orçamento mais antigo sem contato para o mais recente.
@@ -202,12 +203,6 @@ As decisões de escopo e de regra de negócio estão no [AGENTS.md](AGENTS.md) (
 
 Também ficaram de fora, por tecnologia (AGENTS.md §3.2): ORM, biblioteca de estado global e biblioteca de componentes pesada.
 
-### Previstos como p2 e não implementados
-
-O AGENTS.md §11 os marcou como "só se sobrar tempo", e não sobrou:
-
-- **Edição e exclusão de orçamento** (issue #21): hoje só se cria o orçamento e se muda o status. Um erro de digitação em `total` ou na descrição não tem correção pela API.
-
 ## Como usei IA
 
 O desenvolvimento usou assistentes de IA, organizados como agentes definidos em [agents/](agents/README.md), cada um com um papel e com o [AGENTS.md](AGENTS.md) como contexto comum:
@@ -227,7 +222,6 @@ Onde a IA errou: o primeiro esquema do banco gerado por IA exigia contato do cli
 
 ## Próximos passos
 
-- **P2 do escopo:** edição e exclusão de orçamento (#21) e CRUD completo de clientes (#22).
 - **Transições de status mais claras:** o server passaria a devolver as transições permitidas de cada orçamento (`allowedTransitions`), para o front oferecer só as válidas em vez de listar todos os status e depender do 422. As mensagens de transição inválida também deveriam sair em português, com o nome do status exibido na tela (hoje o erro cita `sent`, `won` etc.).
 - **Acessibilidade dos formulários:** levar o foco ao primeiro campo com erro e ligar as mensagens aos campos com `aria-describedby`/`aria-invalid`.
 - **Autenticação:** só se o sistema deixar de ser de uso interno; exigiria perfis, sessão e rever o papel de "responsável".
