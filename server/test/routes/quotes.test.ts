@@ -88,6 +88,83 @@ describe('GET /api/quotes', () => {
   });
 });
 
+describe('GET /api/quotes/stale', () => {
+  it('lists only stale quotes ordered by days without contact, then total, then id', async () => {
+    const clientId = await insertClient(pool);
+    const ownerId = await insertOwner(pool);
+    const stale = (description: string, total: number, status: string, sentAt: string) =>
+      insertQuote(pool, { clientId, ownerId, description, total, status, sentAt });
+    const sentLowId = await stale('A', 1000, 'sent', '2026-03-01');
+    const sentHighId = await stale('B', 3000, 'sent', '2026-03-01');
+    const negotiatingId = await stale('C', 500, 'negotiating', '2026-03-05');
+    const noResponseId = await stale('D', 500, 'no_response', '2026-03-08');
+    // Not in the queue: one day short of the limit, recent follow-up, draft and final status.
+    await stale('Dentro do prazo', 500, 'sent', '2026-03-09');
+    const contactedId = await stale('Com contato recente', 500, 'sent', '2026-03-01');
+    await insertFollowUp(pool, contactedId, '2026-03-14');
+    await insertQuote(pool, { clientId, ownerId, description: 'Rascunho', status: 'draft' });
+    await stale('Ganho', 500, 'won', '2026-02-01');
+
+    const response = await request(app()).get('/api/quotes/stale');
+
+    expect(response.status).toBe(200);
+    expect(response.body.total).toBe(4);
+    const person = {
+      client: { id: clientId, name: 'Ana Souza' },
+      owner: { id: ownerId, name: 'Marina Costa', role: 'Vendedora' },
+    };
+    expect(response.body.items).toEqual([
+      {
+        id: sentHighId,
+        description: 'B',
+        total: 3000,
+        status: 'no_response',
+        sentAt: '2026-03-01',
+        isStale: true,
+        daysWithoutContact: 14,
+        ...person,
+      },
+      {
+        id: sentLowId,
+        description: 'A',
+        total: 1000,
+        status: 'no_response',
+        sentAt: '2026-03-01',
+        isStale: true,
+        daysWithoutContact: 14,
+        ...person,
+      },
+      {
+        id: negotiatingId,
+        description: 'C',
+        total: 500,
+        status: 'negotiating',
+        sentAt: '2026-03-05',
+        isStale: true,
+        daysWithoutContact: 10,
+        ...person,
+      },
+      {
+        id: noResponseId,
+        description: 'D',
+        total: 500,
+        status: 'no_response',
+        sentAt: '2026-03-08',
+        isStale: true,
+        daysWithoutContact: 7,
+        ...person,
+      },
+    ]);
+  });
+
+  it('answers 200 with an empty list instead of treating "stale" as a quote id', async () => {
+    const response = await request(app()).get('/api/quotes/stale');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ items: [], total: 0 });
+  });
+});
+
 describe('GET /api/quotes/:id', () => {
   it('answers 404 for an unknown or malformed id', async () => {
     const unknown = await request(app()).get('/api/quotes/999');

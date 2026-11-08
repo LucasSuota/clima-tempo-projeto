@@ -70,6 +70,8 @@ Definição e X em §7. Calculado no server: a API devolve se o orçamento está
 
 Lista os orçamentos parados ordenados por dias sem contato, do maior para o menor. Orçamento sem pendência não aparece.
 
+- Rota: `GET /api/quotes/stale`. Desempate: maior valor (`total`) primeiro e, persistindo, menor `id`.
+
 #### §2.7 Indicadores no topo (p1)
 
 - Total em aberto, valor parado e taxa de conversão, conforme as fórmulas do §7.
@@ -202,6 +204,7 @@ routes  →  services  →  domain
 
 - Status: `201` criado · `200` ok · `204` sem corpo · `404` inexistente · `422` entrada inválida · `500` erro inesperado (sem vazar stack).
 - Mudança **incompatível** de contrato (remover ou renomear campo, mudar tipo ou status) só com o plano dizendo e o front ajustado no mesmo PR.
+- `GET /api/quotes/stale` devolve só os orçamentos parados, no mesmo formato `{ "items": [...], "total": n }` e com os mesmos itens de `GET /api/quotes`. É uma rota fixa, declarada antes de `/api/quotes/:id`.
 - `GET /api/health` responde `{ "ok": true }` e confere a conexão com o banco.
 
 ### §5.4 Web
