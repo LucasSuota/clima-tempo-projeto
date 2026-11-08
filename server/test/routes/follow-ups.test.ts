@@ -47,6 +47,23 @@ describe('GET /api/quotes/:id/follow-ups', () => {
     });
   });
 
+  it('paginates follow-ups keeping the total of that quote', async () => {
+    const quoteId = await createQuoteWith('sent', '2026-03-01');
+    await insertFollowUp(pool, quoteId, '2026-03-05', 'Ligação');
+    await insertFollowUp(pool, quoteId, '2026-03-10');
+    await insertFollowUp(pool, quoteId, '2026-03-12');
+    const otherQuoteId = await createQuoteWith('sent', '2026-03-01');
+    await insertFollowUp(pool, otherQuoteId, '2026-03-11');
+
+    const response = await request(app()).get(`/api/quotes/${quoteId}/follow-ups?limit=1&offset=1`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      items: [{ id: 2, quoteId, contactedAt: '2026-03-10', description: null }],
+      total: 3,
+    });
+  });
+
   it('answers 404 when the quote does not exist', async () => {
     const response = await request(app()).get('/api/quotes/999/follow-ups');
 

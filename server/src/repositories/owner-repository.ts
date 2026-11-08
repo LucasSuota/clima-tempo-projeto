@@ -1,8 +1,10 @@
 import type { Pool } from 'pg';
 import type { NewOwner, Owner } from '../domain/owners/owner.js';
+import { ALL_ROWS, type PageParams } from '../domain/shared/pagination.js';
 
 export interface OwnerRepository {
-  findAll(): Promise<Owner[]>;
+  findAll(page?: PageParams): Promise<Owner[]>;
+  count(): Promise<number>;
   insert(owner: NewOwner): Promise<Owner>;
   existsById(id: number): Promise<boolean>;
 }
@@ -20,11 +22,19 @@ function toOwner(row: OwnerRow): Owner {
 
 export function createOwnerRepository(pool: Pool): OwnerRepository {
   return {
-    async findAll() {
+    async findAll(page = ALL_ROWS) {
       const { rows } = await pool.query<OwnerRow>(
-        'SELECT id, name, role FROM owners ORDER BY name, id',
+        'SELECT id, name, role FROM owners ORDER BY name, id LIMIT $1 OFFSET $2',
+        [page.limit, page.offset],
       );
       return rows.map(toOwner);
+    },
+
+    async count() {
+      const { rows } = await pool.query<{ total: number }>(
+        'SELECT COUNT(*)::int AS total FROM owners',
+      );
+      return (rows[0] as { total: number }).total;
     },
 
     async insert(owner) {

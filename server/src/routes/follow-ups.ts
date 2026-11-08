@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import type { FollowUpService } from '../services/follow-up-service.js';
+import { parsePagination } from './pagination.js';
 import { calendarDateSchema, parseId } from './quotes.js';
 
 const newFollowUpSchema = z.object({
@@ -20,7 +21,8 @@ export function followUpsRouter(service: FollowUpService): Router {
   const router = Router();
 
   router.get('/quotes/:id/follow-ups', async (req, res) => {
-    res.json(await service.listFollowUps(parseId(req.params.id)));
+    const quoteId = parseId(req.params.id);
+    res.json(await service.listFollowUps(quoteId, parsePagination(req.query)));
   });
 
   router.post('/quotes/:id/follow-ups', async (req, res) => {

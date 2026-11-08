@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import type { OwnerService } from '../services/owner-service.js';
+import { parsePagination } from './pagination.js';
 
 const requiredText = (max: number) =>
   z
@@ -17,8 +18,8 @@ const newOwnerSchema = z.object({
 export function ownersRouter(service: OwnerService): Router {
   const router = Router();
 
-  router.get('/owners', async (_req, res) => {
-    res.json(await service.listOwners());
+  router.get('/owners', async (req, res) => {
+    res.json(await service.listOwners(parsePagination(req.query)));
   });
 
   router.post('/owners', async (req, res) => {

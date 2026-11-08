@@ -1,12 +1,13 @@
 import { validateFollowUp } from '../domain/follow-ups/follow-up-rules.js';
 import type { FollowUp } from '../domain/follow-ups/follow-up.js';
 import { toCalendarDate, type CalendarDate } from '../domain/shared/calendar-date.js';
+import type { PageParams } from '../domain/shared/pagination.js';
 import { QuoteNotFoundError } from '../errors.js';
 import type { FollowUpRepository } from '../repositories/follow-up-repository.js';
 import type { QuoteRepository } from '../repositories/quote-repository.js';
 
 export interface FollowUpService {
-  listFollowUps(quoteId: number): Promise<{ items: FollowUp[]; total: number }>;
+  listFollowUps(quoteId: number, page: PageParams): Promise<{ items: FollowUp[]; total: number }>;
   createFollowUp(
     quoteId: number,
     input: { contactedAt?: CalendarDate; description: string | null },
@@ -31,10 +32,13 @@ export function createFollowUpService({
   }
 
   return {
-    async listFollowUps(quoteId) {
+    async listFollowUps(quoteId, page) {
       await findQuoteOrFail(quoteId);
-      const items = await followUps.findByQuoteId(quoteId);
-      return { items, total: items.length };
+      const [items, total] = await Promise.all([
+        followUps.findByQuoteId(quoteId, page),
+        followUps.countByQuoteId(quoteId),
+      ]);
+      return { items, total };
     },
 
     async createFollowUp(quoteId, input) {

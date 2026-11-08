@@ -2,6 +2,7 @@ import type { Pool } from 'pg';
 import type { QuoteDetails } from '../domain/quotes/quote-details.js';
 import type { QuoteStatus } from '../domain/quotes/quote-status.js';
 import type { CalendarDate } from '../domain/shared/calendar-date.js';
+import { ALL_ROWS, type PageParams } from '../domain/shared/pagination.js';
 
 export interface NewQuoteRecord {
   clientId: number;
@@ -20,7 +21,8 @@ export interface QuotePatchRecord {
 }
 
 export interface QuoteRepository {
-  findAll(): Promise<QuoteDetails[]>;
+  findAll(page?: PageParams): Promise<QuoteDetails[]>;
+  count(): Promise<number>;
   findById(id: number): Promise<QuoteDetails | undefined>;
   insert(quote: NewQuoteRecord): Promise<number>;
   updateStatus(id: number, status: QuoteStatus, sentAt: CalendarDate | null): Promise<void>;
@@ -73,11 +75,20 @@ const GROUP_QUOTES = 'GROUP BY q.id, c.id, o.id';
 
 export function createQuoteRepository(pool: Pool): QuoteRepository {
   return {
-    async findAll() {
+    async findAll(page = ALL_ROWS) {
       const { rows } = await pool.query<QuoteRow>(
-        `${SELECT_QUOTES} ${GROUP_QUOTES} ORDER BY q.created_at DESC, q.id DESC`,
+        `${SELECT_QUOTES} ${GROUP_QUOTES} ORDER BY q.created_at DESC, q.id DESC LIMIT $1 OFFSET $2`,
+        [page.limit, page.offset],
       );
       return rows.map(toQuoteDetails);
+    },
+
+    // The joins are on NOT NULL foreign keys, so counting quotes matches the listed rows.
+    async count() {
+      const { rows } = await pool.query<{ total: number }>(
+        'SELECT COUNT(*)::int AS total FROM quotes',
+      );
+      return (rows[0] as { total: number }).total;
     },
 
     async findById(id) {

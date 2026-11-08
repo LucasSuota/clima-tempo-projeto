@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { QUOTE_STATUSES } from '../domain/quotes/quote-status.js';
 import { QuoteNotFoundError } from '../errors.js';
 import type { QuoteService } from '../services/quote-service.js';
+import { parsePagination } from './pagination.js';
 
 // Format only; whether the day exists and is not in the future is a domain rule.
 export const calendarDateSchema = z
@@ -77,8 +78,8 @@ export function parseId(raw: string): number {
 export function quotesRouter(service: QuoteService): Router {
   const router = Router();
 
-  router.get('/quotes', async (_req, res) => {
-    res.json(await service.listQuotes());
+  router.get('/quotes', async (req, res) => {
+    res.json(await service.listQuotes(parsePagination(req.query)));
   });
 
   router.get('/quotes/:id', async (req, res) => {
