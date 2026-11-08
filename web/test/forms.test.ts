@@ -56,13 +56,16 @@ describe('parseMoneyInput', () => {
     ['1500', 1500],
     ['1500,50', 1500.5],
     ['1.500,50', 1500.5],
+    ['1.500,00', 1500],
     ['1500.5', 1500.5],
+    ['12.5', 12.5],
+    ['1500.50', 1500.5],
     ['R$ 1.500,00', 1500],
   ])('reads %j as %d', (text, expected) => {
     expect(parseMoneyInput(text)).toBe(expected);
   });
 
-  it.each(['', 'abc', '1,2,3', '-5'])('rejects %j', (text) => {
+  it.each(['', 'abc', '1,2,3', '-5', '1.500', '1.500.000'])('rejects %j', (text) => {
     expect(parseMoneyInput(text)).toBeNull();
   });
 });

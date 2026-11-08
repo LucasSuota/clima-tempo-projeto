@@ -24,14 +24,18 @@ export function splitErrors(error: unknown, knownFields: readonly string[]): Spl
 
 const WITH_COMMA = /^(\d{1,3}(\.\d{3})+|\d+),\d+$/;
 const WITHOUT_COMMA = /^\d+(\.\d+)?$/;
+const AMBIGUOUS_THOUSANDS = /^\d{1,3}(\.\d{3})+$/;
 
 /**
  * Reads a money amount typed the Brazilian way. With a comma, dots are thousands separators;
- * without one, the dot is the decimal separator. Positivity and decimal places are the server's.
+ * without one, the dot is the decimal separator. Dots in groups of three with no comma ("1.500")
+ * could mean 1500 or 1.5, a 1000x error in money, so they are rejected. Positivity and decimal
+ * places are the server's.
  */
 export function parseMoneyInput(text: string): number | null {
   const cleaned = text.replace(/R\$/g, '').replace(/\s/g, '');
   if (WITH_COMMA.test(cleaned)) return Number(cleaned.replace(/\./g, '').replace(',', '.'));
+  if (AMBIGUOUS_THOUSANDS.test(cleaned)) return null;
   if (WITHOUT_COMMA.test(cleaned)) return Number(cleaned);
   return null;
 }

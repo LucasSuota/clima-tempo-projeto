@@ -29,6 +29,10 @@ export function QuoteForm({ onCancel }: { onCancel: () => void }) {
   const { submitting, fieldErrors, message, run } = useSubmit(KNOWN_FIELDS);
 
   const total = parseMoneyInput(totalText);
+  const totalFormatError =
+    totalText.trim() !== '' && total === null
+      ? 'Valor inválido. Use vírgula nos centavos, ex.: 1.500,00'
+      : undefined;
   const canSubmit =
     clientId !== '' && ownerId !== '' && description.trim() !== '' && total !== null && !submitting;
 
@@ -114,7 +118,7 @@ export function QuoteForm({ onCancel }: { onCancel: () => void }) {
           onChange={(e) => setDescription(e.target.value)}
         />
       </FormField>
-      <FormField label="Valor (R$)" required error={fieldErrors.total}>
+      <FormField label="Valor (R$)" required error={fieldErrors.total ?? totalFormatError}>
         <input
           inputMode="decimal"
           placeholder="1.500,00"
