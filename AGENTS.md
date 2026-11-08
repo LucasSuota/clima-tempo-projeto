@@ -11,9 +11,9 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 | Etapa | O que entra | Estado |
 |---|---|---|
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
-| 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ⏳ próximo |
-| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⬜ |
-| 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ⬜ |
+| 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito (reabre com a issue de `owners`) |
+| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (esqueleto pronto; domínio, repositórios, serviços e rotas pendentes) |
+| 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⬜ |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
 | 6 | README final: decisões, o que ficou de fora, uso de IA, próximos passos | ⬜ |
@@ -22,15 +22,73 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 
 ## §2. Escopo (o que será feito)
 
-> ⏳ **Parcial.** Os campos do mínimo obrigatório já bastam para o esquema da etapa 1. A parte livre entra no levantamento de requisitos (etapa 3).
+Sistema para a ClimaFácil acompanhar orçamentos enviados, para que nenhum fique sem retorno. Prioridades em §11.
 
-Formato esperado: uma subseção por funcionalidade (`§2.1`, `§2.2`…), cada uma com o objetivo em uma frase, as regras e os critérios de aceite. Separe o **mínimo obrigatório** da **parte livre**.
+### Mínimo obrigatório (p0)
+
+> O enunciado do desafio não está no repositório; o mínimo abaixo é a leitura do README e do esquema.
+
+#### §2.1 Clientes e orçamentos
+
+- **Objetivo:** cadastrar clientes e orçamentos e listá-los com status.
+- **Regras:**
+  - Cliente com nome obrigatório; e-mail e telefone opcionais (únicos quando informados).
+  - Orçamento pertence a um cliente e a um responsável (`owner_id`, obrigatório), com descrição, `total` e status.
+- **Aceite:**
+  - Criar e listar orçamentos com cliente, responsável, total e status.
+  - Entrada inválida responde 422 no formato do §5.3.
+  - Listagens devolvem `{ "items": [...], "total": n }` desde o início (evita mudança incompatível quando entrar a paginação).
+
+#### §2.2 Responsáveis
+
+- **Objetivo:** cadastrar e listar quem responde pelos orçamentos.
+- **Regras:**
+  - `owners` tem `name` e `role` obrigatórios.
+  - Sem login nem permissões; API simples: `GET /api/owners` e `POST /api/owners`.
+- **Aceite:**
+  - Criar e listar responsáveis.
+  - Um orçamento só é criado com responsável existente (`ownerId` inexistente no corpo responde 422, entrada inválida, no formato do §5.3).
+
+#### §2.3 Status do orçamento
+
+Regras em §7. Transição inválida resulta em erro de domínio.
+
+#### §2.4 Follow-ups
+
+Registro de contato com data e descrição opcional. O histórico é ordenado por data. O efeito no orçamento está em §7.
+
+#### §2.5 Orçamento parado
+
+Definição e X em §7. Calculado no server: a API devolve se o orçamento está parado e há quantos dias está sem contato.
+
+### Parte livre
+
+#### §2.6 Fila "quem contatar hoje" (p1)
+
+Lista os orçamentos parados ordenados por dias sem contato, do maior para o menor. Orçamento sem pendência não aparece.
+
+#### §2.7 Indicadores no topo (p1)
+
+- Total em aberto, valor parado e taxa de conversão, conforme as fórmulas do §7.
+- Somas feitas no SQL.
+- Sem `won` nem `lost`, a taxa aparece como "sem dados", nunca divisão por zero.
+
+### Se sobrar tempo (p2)
+
+Edição e exclusão de orçamento, CRUD completo de clientes e paginação.
 
 ## §3. Fora do escopo (o que não será feito)
 
 ### §3.1 Funcionalidades
 
-> ⏳ A definir no levantamento de requisitos. Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de fora" do README).
+Cada item fica com o motivo em uma linha (alimenta a seção "O que ficou de fora" do README).
+
+- **Autenticação e múltiplos usuários:** uso interno; o responsável é só um cadastro, e login pediria perfis e sessão.
+- **Envio real de e-mail/WhatsApp:** depende de provedores e credenciais; o sistema só registra o contato.
+- **Anexos e PDF de orçamento:** exigem armazenamento e geração de documento.
+- **Relatórios exportáveis:** os indicadores cobrem a visão necessária.
+- **Multi-moeda:** o sistema opera em reais (`NUMERIC(12,2)`, BRL).
+- **Notificações automáticas:** exigem agendador e canal; a fila "quem contatar hoje" cumpre o papel.
 
 ### §3.2 Dependências e tecnologia
 
@@ -72,19 +130,55 @@ Cada pasta com código tem um `README.md` curto de resumo, mantido pelo `doc-wri
 
 ### §5.2 Camadas do server
 
+Estrutura-alvo, organizada por recurso, com nomes em `kebab-case` (§6):
+
 ```
 server/src/
-├── index.ts          # sobe o servidor (listen). Nada além disso
-├── app.ts            # monta o Express (middlewares, rotas, erros). Exportado para o supertest
-├── config.ts         # lê e valida as variáveis de ambiente (zod)
-├── db.ts             # Pool do pg
-├── errors.ts         # erros de domínio + middleware que os traduz para HTTP
-├── domain/           # funções puras: regras de negócio, sem I/O
-├── repositories/     # único lugar com SQL
-├── services/         # casos de uso: orquestram domínio + repositórios
-└── routes/           # routers Express + schemas zod de entrada
-server/test/          # testes (unitários do domínio e de API com supertest)
+├── index.ts            # só listen e encerramento
+├── app.ts              # monta o Express; exportado para o supertest
+├── config.ts           # env validada com zod
+├── db.ts               # Pool do pg
+├── errors.ts           # DomainError e subclasses (ex.: QuoteNotFoundError)
+├── middlewares/        # error-handler.ts (404 + erros -> formato do §5.3), validate-body.ts
+├── domain/             # puro, sem I/O; uma pasta por recurso
+│   ├── quotes/         # quote.ts (tipos), quote-status.ts (transições), stale-quote.ts (parado, dias sem contato, status efetivo)
+│   ├── follow-ups/     # follow-up.ts (tipo), follow-up-rules.ts (validações de data e de status)
+│   ├── indicators/     # indicators.ts (conversão e agregações puras)
+│   ├── owners/         # owner.ts (tipo)
+│   └── clients/        # client.ts (tipo)
+├── repositories/       # único lugar com SQL; um arquivo por recurso
+│   └── quote-repository.ts, owner-repository.ts, client-repository.ts, follow-up-repository.ts, indicator-repository.ts
+├── services/           # casos de uso; um arquivo por recurso
+│   └── quote-service.ts, owner-service.ts, client-service.ts, follow-up-service.ts, indicator-service.ts
+└── routes/             # um router por recurso + schemas zod de entrada no mesmo arquivo
+    └── index.ts (monta /api), health.ts, quotes.ts, owners.ts, clients.ts, follow-ups.ts, indicators.ts
+server/test/            # espelha src/
+├── domain/quotes/stale-quote.test.ts
+├── routes/quotes.test.ts
+├── config.test.ts
+├── errors.test.ts
+└── helpers/            # conexão do banco de teste, limpeza e criação de dados fictícios
 ```
+
+A árvore mostra **onde** cada coisa fica, não que todos os arquivos devam existir: só os testes estritamente necessários (§8).
+
+Regras de organização:
+
+1. Na raiz de `src/` ficam só `index`, `app`, `config`, `db`, `errors` e as pastas. Nada de `utils.ts`, `helpers.ts` ou `types.ts` soltos.
+2. Tipos do domínio ficam em `domain/<recurso>/`. Tipos do contrato HTTP são os inferidos dos schemas zod (`z.infer`) nas `routes/`.
+3. Schemas zod ficam no arquivo do router (§5.3). Se passarem de ~80 linhas, extrair para `<recurso>-schemas.ts` na mesma pasta.
+4. Recurso novo = um arquivo (no `domain/`, uma pasta) em cada camada, com o mesmo nome-base.
+5. Só `routes/`, `middlewares/` e `app.ts` importam `express`; só `db.ts` e `repositories/` usam `pg` em execução (`import type { Pool }` é permitido onde o `Pool` chega por parâmetro); `domain/` não importa nada de fora de `domain/`, exceto os erros de `errors.ts`.
+
+> A estrutura-alvo vale para o código NOVO. O código existente não foi movido neste PR.
+
+Movimentações pendentes (o autor decide; candidata a issue `chore`):
+
+- `errors.ts` hoje também contém `notFoundHandler` e `errorHandler`: mover para `middlewares/error-handler.ts`, mantendo `DomainError` e `ValidationError` em `errors.ts`.
+- O router de `/api` é montado direto em `app.ts` (`app.use('/api', healthRouter(pool))`): mover para `routes/index.ts`.
+- `test/health.test.ts` -> `test/routes/health.test.ts`, e criar `test/helpers/`.
+- `test/errors.test.ts` testa `errorHandler`: ao mover o handler, esse teste vai para `test/middlewares/error-handler.test.ts`.
+- Já estão no lugar: `config.ts`, `db.ts`, `routes/health.ts`, `test/config.test.ts`.
 
 Direção de dependência, sempre para baixo:
 
@@ -104,6 +198,7 @@ routes  →  services  →  domain
 - Prefixo `/api`. Recursos no plural, em `kebab-case`: `/api/quotes`, `/api/quotes/:id/follow-ups`.
 - JSON nos dois sentidos; campos em `camelCase` na API e `snake_case` no banco. A conversão acontece no repositório.
 - Toda entrada passa por um schema zod. Os schemas ficam em `routes/` junto do router que os usa.
+- Listagens devolvem `{ "items": [...], "total": n }` desde o início, para a paginação futura não ser mudança incompatível.
 - Formato de erro único. Chaves em inglês, mensagens em português (são exibidas ao usuário, §6):
 
   ```json
@@ -173,7 +268,46 @@ Padrão web para nomes:
 
 ## §7. Regras de domínio
 
-> ⏳ **A definir.** Aqui entram as regras que o código precisa respeitar e que os testes do `domain/` cobrem: status possíveis e transições permitidas, o que conta como "parado" e como X dias é configurado, o que um follow-up altera no orçamento, e qualquer indicador calculado.
+Regras que o código precisa respeitar e que os testes do `domain/` cobrem.
+
+### Status e transições
+
+- Status: `draft`, `sent`, `negotiating`, `no_response`, `won`, `lost`.
+- Transições permitidas:
+  - `draft` → `sent`
+  - `sent` → `negotiating`, `no_response`, `won`, `lost`
+  - `negotiating` → `no_response`, `won`, `lost`
+  - `no_response` → `negotiating`, `won`, `lost`
+  - `won` e `lost` são finais para status.
+- Qualquer outra transição é erro de domínio.
+- Passar para `sent` exige `sent_at` (não futura). `draft` é o único status com `sent_at` nulo (já garantido por `CHECK` no esquema).
+
+### Orçamento parado
+
+- Só `sent`, `negotiating` e `no_response` podem estar parados.
+- Último contato = data do último follow-up, ou `sent_at` se não houver follow-up.
+- Dias sem contato = hoje − último contato, em dias de calendário. "Hoje" é injetado e segue o fuso `America/Sao_Paulo`.
+- Está parado quando dias sem contato >= X. X padrão: 7, configurável por `STALE_DAYS`.
+- `no_response` é calculado na leitura: o domínio deriva o status efetivo exibido, sem job agendado.
+
+### Follow-up
+
+- Registra a data do contato e zera a contagem de dias sem contato; não muda o status sozinho.
+- Em `won` e `lost` é aceito e apenas registra o contato (não muda status nem afeta indicadores).
+- Em `draft` é recusado (erro de domínio).
+- A data do contato não pode ser futura nem anterior a `sent_at`.
+
+### Validações
+
+- `total` > 0.
+- `sent_at` não pode ser futura, comparada à data "hoje" injetada.
+
+### Indicadores
+
+- Total em aberto = soma de `total` dos orçamentos `sent`, `negotiating` e `no_response`.
+- Valor parado = soma de `total` dos orçamentos parados.
+- Taxa de conversão = `won` / (`won` + `lost`), em quantidade de orçamentos. Sem nenhum `won` nem `lost`, o valor é ausente ("sem dados"), nunca divisão por zero.
+- As somas são feitas no SQL (§5.5).
 
 ## §8. Testes
 
@@ -205,7 +339,11 @@ Padrão web para nomes:
 
 ## §11. Linha de corte e prioridades
 
-> ⏳ A definir no levantamento de requisitos: o que é `p0` (mínimo obrigatório), `p1` (parte livre escolhida) e `p2` (só se sobrar tempo). Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
+- **p0 (mínimo obrigatório):** §2.1 a §2.5 (clientes e orçamentos, responsáveis, status, follow-ups e orçamento parado).
+- **p1 (parte livre escolhida):** §2.6 (fila "quem contatar hoje") e §2.7 (indicadores no topo).
+- **p2 (só se sobrar tempo):** edição e exclusão de orçamento, CRUD completo de clientes e paginação.
+
+Na dúvida, vale "uma ou duas coisas bem feitas" em vez de muitas pela metade.
 
 ## §12. Segurança
 
