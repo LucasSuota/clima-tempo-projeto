@@ -77,6 +77,7 @@ Lista os orçamentos parados ordenados por dias sem contato, do maior para o men
 - Total em aberto, valor parado e taxa de conversão, conforme as fórmulas do §7.
 - Somas feitas no SQL.
 - Sem `won` nem `lost`, a taxa aparece como "sem dados", nunca divisão por zero.
+- Rota: `GET /api/indicators` -> `{ openTotal, staleTotal, conversionRate }`. Totais em reais como `number`; `conversionRate` é fração de 0 a 1 ou `null` ("sem dados"). O valor parado reusa a lista da fila (§2.6), para os dois nunca divergirem; a soma é no SQL.
 
 ### Se sobrar tempo (p2)
 
@@ -205,6 +206,7 @@ routes  →  services  →  domain
 - Status: `201` criado · `200` ok · `204` sem corpo · `404` inexistente · `422` entrada inválida · `500` erro inesperado (sem vazar stack).
 - Mudança **incompatível** de contrato (remover ou renomear campo, mudar tipo ou status) só com o plano dizendo e o front ajustado no mesmo PR.
 - `GET /api/quotes/stale` devolve só os orçamentos parados, no mesmo formato `{ "items": [...], "total": n }` e com os mesmos itens de `GET /api/quotes`. É uma rota fixa, declarada antes de `/api/quotes/:id`.
+- `GET /api/indicators` é uma leitura sem entrada (sem corpo nem query) e devolve um objeto `{ "openTotal": 4200.35, "staleTotal": 3500.35, "conversionRate": 0.75 }`, não uma listagem.
 - `GET /api/health` responde `{ "ok": true }` e confere a conexão com o banco.
 
 ### §5.4 Web
