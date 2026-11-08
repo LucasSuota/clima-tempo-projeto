@@ -19,3 +19,15 @@ export class ValidationError extends DomainError {
     super('Dados inválidos', 422, errors);
   }
 }
+
+export class InvalidStatusTransitionError extends DomainError {
+  constructor(from: string, to: string) {
+    super(`Transição de status não permitida: de ${from} para ${to}`, 422);
+  }
+}
+
+export class FollowUpNotAllowedError extends DomainError {
+  constructor() {
+    super('Não é possível registrar contato em orçamento em rascunho', 422);
+  }
+}

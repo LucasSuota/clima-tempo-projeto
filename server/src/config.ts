@@ -5,6 +5,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   DATABASE_URL_TEST: z.string().min(1).optional(),
   CORS_ORIGIN: z.string().min(1).optional(),
+  STALE_DAYS: z.coerce.number().int().min(1).default(7),
 });
 
 export interface Config {
@@ -12,6 +13,7 @@ export interface Config {
   databaseUrl: string;
   databaseUrlTest: string | undefined;
   corsOrigin: string | undefined;
+  staleDays: number;
 }
 
 // Receives the env as a parameter so it stays testable; index.ts passes process.env.
@@ -29,5 +31,6 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     databaseUrl: result.data.DATABASE_URL,
     databaseUrlTest: result.data.DATABASE_URL_TEST,
     corsOrigin: result.data.CORS_ORIGIN,
+    staleDays: result.data.STALE_DAYS,
   };
 }
