@@ -12,7 +12,7 @@ Se o código e este arquivo discordarem, **não decida qual está certo**: relat
 |---|---|---|
 | 0 | Setup: AGENTS.md, agentes, README, Docker Compose com o banco, `.env.example` | ✅ feito |
 | 1 | Banco: esquema do mínimo obrigatório + seed com dados fictícios (`db/init/`) | ✅ feito |
-| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (esqueleto pronto; domínio, repositórios, serviços e rotas pendentes) |
+| 2 | Server: esqueleto (Express + TS + Vitest), `GET /api/health`, domínio puro com testes, repositórios, serviços, rotas com supertest | ⏳ em andamento (domínio pronto; repositórios, serviços e rotas pendentes) |
 | 3 | Levantamento de requisitos da parte livre → preencher §2, §3.1, §7 e §11 | ✅ feito |
 | 4 | Web: esqueleto (Vite + React + TS + Tailwind), telas consumindo a API | ⬜ |
 | 5 | Docker Compose com `server` e `web` (subir tudo com um comando) | ⬜ |
@@ -178,7 +178,7 @@ routes  →  services  →  domain
                      →  repositories  →  db (pg)
 ```
 
-- `domain/` é **puro**: recebe dados e a data de referência por parâmetro, não lê relógio, banco nem env. É onde fica a lógica mais testada (ex.: decidir se um orçamento está parado).
+- `domain/` é **puro**: recebe dados e a data de referência por parâmetro, não lê relógio, banco nem env. Só importa de `domain/` e dos erros de `errors.ts`. É onde fica a lógica mais testada (ex.: decidir se um orçamento está parado).
 - `repositories/` é o **único** lugar com SQL, sempre parametrizado (`$1`, `$2`). Converte linhas do banco em tipos do domínio.
 - `services/` contém a regra de aplicação. Recebe o repositório (ou o `Pool`) por parâmetro, sem singleton escondido.
 - `routes/` só traduz: valida a entrada com zod, chama o serviço, devolve JSON. **Nenhuma regra de negócio aqui.**
