@@ -30,6 +30,12 @@ export interface ListResponse<T> {
   total: number;
 }
 
+/** Optional page window of the list endpoints; without it the API returns every item. */
+export interface PageQuery {
+  limit?: number;
+  offset?: number;
+}
+
 export interface Owner {
   id: number;
   name: string;

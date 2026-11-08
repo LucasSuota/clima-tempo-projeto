@@ -1,8 +1,8 @@
-import { request } from './client';
-import type { Client, ListResponse, NewClient } from './types';
+import { request, withPage } from './client';
+import type { Client, ListResponse, NewClient, PageQuery } from './types';
 
-export function listClients(): Promise<ListResponse<Client>> {
-  return request('/clients');
+export function listClients(page?: PageQuery): Promise<ListResponse<Client>> {
+  return request(withPage('/clients', page));
 }
 
 export function createClient(input: NewClient): Promise<Client> {

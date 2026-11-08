@@ -1,4 +1,4 @@
-import type { ApiErrorBody, FieldError } from './types';
+import type { ApiErrorBody, FieldError, PageQuery } from './types';
 
 const API_BASE = '/api';
 
@@ -54,6 +54,15 @@ async function toApiError(response: Response): Promise<ApiError> {
   }
   if (isApiErrorBody(body)) return new ApiError(response.status, body.detail, body.errors);
   return new ApiError(response.status, 'Erro inesperado do servidor', []);
+}
+
+/** Appends `limit` and `offset` to a list path, only for the fields that were given. */
+export function withPage(path: string, page: PageQuery = {}): string {
+  const params = new URLSearchParams();
+  if (page.limit !== undefined) params.set('limit', String(page.limit));
+  if (page.offset !== undefined) params.set('offset', String(page.offset));
+  const query = params.toString();
+  return query === '' ? path : `${path}?${query}`;
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {

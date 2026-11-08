@@ -5,11 +5,13 @@ import { AsyncView } from '../components/AsyncView';
 import { Button } from '../components/Button';
 import { DataTable, type Column } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
+import { Pagination } from '../components/Pagination';
 import { QuoteForm } from '../components/QuoteForm';
 import { StaleBadge } from '../components/StaleBadge';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatCurrency } from '../format';
-import { useAsync } from '../hooks/useAsync';
+import { usePagedList } from '../hooks/usePagedList';
+import { PAGE_SIZE } from '../pagination';
 import { quoteHref } from '../router';
 
 const COLUMNS: Column<Quote>[] = [
@@ -44,7 +46,7 @@ const COLUMNS: Column<Quote>[] = [
 ];
 
 export function QuotesPage() {
-  const quotes = useAsync(listQuotes);
+  const quotes = usePagedList(listQuotes);
   const [formOpen, setFormOpen] = useState(false);
 
   return (
@@ -63,10 +65,18 @@ export function QuotesPage() {
       )}
       <AsyncView state={quotes}>
         {(data) =>
-          data.items.length === 0 ? (
+          data.total === 0 ? (
             <EmptyState title="Nenhum orçamento cadastrado" />
           ) : (
-            <DataTable items={data.items} columns={COLUMNS} getKey={(quote) => quote.id} />
+            <>
+              <DataTable items={data.items} columns={COLUMNS} getKey={(quote) => quote.id} />
+              <Pagination
+                page={quotes.page}
+                total={data.total}
+                pageSize={PAGE_SIZE}
+                onPageChange={quotes.setPage}
+              />
+            </>
           )
         }
       </AsyncView>

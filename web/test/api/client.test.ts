@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, request } from '../../src/api/client';
+import { ApiError, request, withPage } from '../../src/api/client';
 
 function stubFetch(response: Response | Error) {
   const fetchMock = vi.fn(async () => {
@@ -70,5 +70,13 @@ describe('request', () => {
       detail: 'Não foi possível conectar ao servidor',
       errors: [],
     });
+  });
+});
+
+describe('withPage', () => {
+  it('builds the query string only from the given page fields', () => {
+    expect(withPage('/clients')).toBe('/clients');
+    expect(withPage('/clients', { limit: 20 })).toBe('/clients?limit=20');
+    expect(withPage('/clients', { limit: 20, offset: 40 })).toBe('/clients?limit=20&offset=40');
   });
 });
