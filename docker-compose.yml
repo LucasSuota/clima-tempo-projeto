@@ -1,4 +1,4 @@
-# Database now; the server and web services join in steps 2 to 5 (AGENTS.md §1).
+# Database, server and web: `docker compose up --build` starts everything (AGENTS.md §1).
 # Variables come from the root .env (see .env.example); without it, the defaults below apply.
 name: climafacil
 
@@ -21,6 +21,41 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    # Not published on the host: the web container reaches it through the compose network.
+    # No env_file on purpose: the dev .env points at localhost and must not leak in here.
+    environment:
+      PORT: 3333
+      DATABASE_URL: postgres://${POSTGRES_USER:-climafacil}:${POSTGRES_PASSWORD:-climafacil}@db:5432/${POSTGRES_DB:-climafacil}
+      CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
+      STALE_DAYS: ${STALE_DAYS:-7}
+      TZ: America/Sao_Paulo
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3333/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
       interval: 5s
       timeout: 3s
       retries: 10
