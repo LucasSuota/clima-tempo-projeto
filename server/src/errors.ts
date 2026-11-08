@@ -31,3 +31,9 @@ export class FollowUpNotAllowedError extends DomainError {
     super('Não é possível registrar contato em orçamento em rascunho', 422);
   }
 }
+
+export class QuoteNotFoundError extends DomainError {
+  constructor() {
+    super('Orçamento não encontrado', 404);
+  }
+}
