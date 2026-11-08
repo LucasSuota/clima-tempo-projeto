@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Route } from '../router';
 
 const NAV_ITEMS = [
+  { label: 'Painel', href: '#/', routes: ['dashboard'] },
   { label: 'Orçamentos', href: '#/orcamentos', routes: ['quotes', 'quote'] },
   { label: 'Clientes', href: '#/clientes', routes: ['clients'] },
   { label: 'Responsáveis', href: '#/responsaveis', routes: ['owners'] },

@@ -1,4 +1,5 @@
 export type Route =
+  | { name: 'dashboard' }
   | { name: 'quotes' }
   | { name: 'quote'; id: number }
   | { name: 'clients' }
@@ -18,9 +19,11 @@ export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#/, '').replace(/\/+$/, '');
   const [, section, idSegment, ...rest] = path.split('/');
 
-  if (path === '' || (section === 'orcamentos' && idSegment === undefined)) {
-    return { name: 'quotes' };
+  // `#/fila` is an alias: the contact queue is the second half of the home dashboard.
+  if (path === '' || (section === 'fila' && idSegment === undefined)) {
+    return { name: 'dashboard' };
   }
+  if (section === 'orcamentos' && idSegment === undefined) return { name: 'quotes' };
   if (section === 'orcamentos' && rest.length === 0 && idSegment !== undefined) {
     const id = parseId(idSegment);
     return id === null ? { name: 'notFound' } : { name: 'quote', id };

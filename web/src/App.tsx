@@ -2,6 +2,7 @@ import { EmptyState } from './components/EmptyState';
 import { Layout } from './components/Layout';
 import { useHashRoute } from './hooks/useHashRoute';
 import { ClientsPage } from './pages/ClientsPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { OwnersPage } from './pages/OwnersPage';
 import { QuoteDetailPage } from './pages/QuoteDetailPage';
 import { QuotesPage } from './pages/QuotesPage';
@@ -9,6 +10,8 @@ import type { Route } from './router';
 
 function Page({ route }: { route: Route }) {
   switch (route.name) {
+    case 'dashboard':
+      return <DashboardPage />;
     case 'owners':
       return <OwnersPage />;
     case 'clients':
