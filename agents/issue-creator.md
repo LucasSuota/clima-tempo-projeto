@@ -51,7 +51,7 @@ Inclua o corpo da requisição ou os dados mínimos (sempre fictícios).
 
 **Contexto**
 - Camada: [banco / domínio / serviço / repositório / rota / web]
-- Reproduzível com teste? [sim: sugerir o caso que falha / não]
+- Reproduzível com teste? [sim: sugerir o caso que falha / não; só se o teste for estritamente necessário]
 ```
 
 ### Funcionalidade / melhoria
@@ -84,7 +84,7 @@ Inclua o corpo da requisição ou os dados mínimos (sempre fictícios).
 - [ ] ...
 - [ ] ...
 
-**Testes esperados**
+**Testes esperados** (só os estritamente necessários; omita se não houver regra crítica de `domain/`)
 - [ ] Caso feliz
 - [ ] Caso de erro (entrada inválida → 422, inexistente → 404)
 - [ ] Caso de borda (limite de dias, valor zero, campo vazio...)
@@ -123,7 +123,7 @@ Inclua o corpo da requisição ou os dados mínimos (sempre fictícios).
 [...]
 
 **Critérios de aceite**
-- [ ] Teste de regressão cobrindo a entrada maliciosa
+- [ ] Teste de regressão cobrindo a entrada maliciosa (se necessário)
 - [ ] SQL parametrizado; entrada validada com zod
 ```
 
@@ -142,14 +142,14 @@ Inclua o corpo da requisição ou os dados mínimos (sempre fictícios).
 - Erros: [status e formato `{"detail": ..., "errors": [{"field": ..., "message": ...}]}`]
 
 **Critérios de aceite**
-- [ ] Teste de API (supertest) cobrindo sucesso e erros
+- [ ] Teste de API (supertest) apenas se estritamente necessário
 - [ ] `web/src/api/types.ts` atualizado no mesmo PR
 ```
 
 ### Teste
 
 ```
-**Objetivo da cobertura**
+**Objetivo da cobertura** (apenas o estritamente necessário)
 [Qual comportamento precisa ser coberto e por quê]
 
 **Cenários**

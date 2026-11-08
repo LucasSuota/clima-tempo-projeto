@@ -76,8 +76,7 @@ Revisar o código implementado e aplicar refatorações que o tornem mais **clar
 
 ### Testes (§8)
 
-- Há teste novo cobrindo a lógica nova ou alterada?
-- Regras de `domain/` cobrem feliz, erro e borda (inclusive o limite exato de dias)?
+- As regras críticas novas ou alteradas de `domain/` têm teste (feliz, erro e borda, inclusive o limite exato de dias)? Não exija teste para o resto: o projeto não usa TDD e pede só o estritamente necessário.
 - "Hoje" fixado no teste; nenhum teste usa relógio real ou rede?
 - Testes de API usam `DATABASE_URL_TEST` e limpam os próprios dados?
 - Arrange / Act / Assert e um comportamento por teste? Nome descreve o comportamento?

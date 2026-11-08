@@ -102,7 +102,7 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [web/](
 
 ## Como o desenvolvimento é organizado
 
-O trabalho segue um fluxo por issues, com papéis definidos em [agents/](agents/README.md): triagem → issue → plano em TDD → implementação → revisão → documentação → PR. As regras que todo mundo segue (camadas do server, contrato da API, convenções do banco, nomes, testes e segurança) estão no [AGENTS.md](AGENTS.md).
+O trabalho segue um fluxo por issues, com papéis definidos em [agents/](agents/README.md): triagem → issue → plano → implementação → revisão → documentação → PR. As regras que todo mundo segue (camadas do server, contrato da API, convenções do banco, nomes, testes e segurança) estão no [AGENTS.md](AGENTS.md).
 
 ## Decisões técnicas
 
