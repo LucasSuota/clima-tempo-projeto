@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ClimaFácil — Fundamentos</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#F4F7FA}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<div style="font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:24px;color:#0F1F2B;background:#F4F7FA;min-height:2400px;padding-bottom:96px">
+
+<header style="background:#FFFFFF;border-bottom:1px solid #DDE5EC">
+<div style="max-width:1152px;margin:0 auto;padding:48px 32px 40px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="font-weight:700;font-size:20px;line-height:28px;letter-spacing:-0.01em;color:#1B5FA6">ClimaFácil</span>
+<h1 style="margin:0;font-weight:700;font-size:44px;line-height:52px;letter-spacing:-0.02em">Design system</h1>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:24px 40px">
+<div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-weight:600;font-size:18px;line-height:28px">Quais orçamentos estão parados?</h2><p style="margin:0;font-size:14px;line-height:20px;color:#31424F">Todo orçamento sem contato há 15 dias ou mais aparece no Painel e na lista, com o tempo parado em destaque.</p></div>
+<div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-weight:600;font-size:18px;line-height:28px">Quem deveria ligar?</h2><p style="margin:0;font-size:14px;line-height:20px;color:#31424F">Cada orçamento tem um responsável. A fila “Para ligar hoje” mostra quem liga para quem, com WhatsApp a um toque.</p></div>
+<div style="display:flex;flex-direction:column;gap:4px"><h2 style="margin:0;font-weight:600;font-size:18px;line-height:28px">Quanto dinheiro está na mesa?</h2><p style="margin:0;font-size:14px;line-height:20px;color:#31424F">O valor parado fica no topo do Painel, em reais, e diminui a cada contato registrado.</p></div>
+</div>
+</div>
+</header>
+
+<section style="max-width:1152px;margin:0 auto;padding:56px 32px 0;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Cores</h2>
+<p style="margin:0;color:#52646F">Azul para ação e navegação. Laranja e vermelho só para o que está parado. Todo texto passa de 4,5:1 sobre o seu fundo.</p>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Marca</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px">
+<sc-for list="{{brandColors}}" as="c" hint-placeholder-count="4">
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="height:72px;display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:18px;border-bottom:1px solid #DDE5EC;background:{{c.bg}};color:{{c.fg}}">{{c.sample}}</div>
+<div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:2px">
+<div style="font-weight:600">{{c.name}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F;font-variant-numeric:tabular-nums">{{c.hex}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F">{{c.use}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Neutros</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px">
+<sc-for list="{{neutralColors}}" as="c" hint-placeholder-count="8">
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="height:72px;display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:18px;border-bottom:1px solid #DDE5EC;background:{{c.bg}};color:{{c.fg}}">{{c.sample}}</div>
+<div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:2px">
+<div style="font-weight:600">{{c.name}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F;font-variant-numeric:tabular-nums">{{c.hex}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F">{{c.use}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Status do orçamento</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px">
+<sc-for list="{{statusColors}}" as="c" hint-placeholder-count="4">
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="height:72px;display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:15px;border-bottom:1px solid #DDE5EC;background:{{c.bg}};color:{{c.fg}}">{{c.sample}}</div>
+<div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:2px">
+<div style="font-weight:600">{{c.name}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F;font-variant-numeric:tabular-nums">{{c.hex}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F">{{c.use}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Parado e perigo</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px">
+<sc-for list="{{alertColors}}" as="c" hint-placeholder-count="3">
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="height:72px;display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:15px;border-bottom:1px solid #DDE5EC;background:{{c.bg}};color:{{c.fg}}">{{c.sample}}</div>
+<div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:2px">
+<div style="font-weight:600">{{c.name}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F;font-variant-numeric:tabular-nums">{{c.hex}}</div>
+<div style="font-size:13px;line-height:18px;color:#52646F">{{c.use}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Tipografia</h2>
+<p style="margin:0;color:#52646F">Uma família só, Inter. A hierarquia vem de tamanho e peso. Números sempre tabulares, para as colunas alinharem.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Número em destaque</div>Inter 700 · 36/44 · tabular</div>
+<div style="flex:1 1 320px;min-width:0;font-weight:700;font-size:36px;line-height:44px;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;color:#A34A06">R$ 12.270,00</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Título de página</div>Inter 700 · 32/40</div>
+<div style="flex:1 1 320px;min-width:0;font-weight:700;font-size:32px;line-height:40px;letter-spacing:-0.01em">Orçamentos</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Título de seção</div>Inter 600 · 20/28</div>
+<div style="flex:1 1 320px;min-width:0;font-weight:600;font-size:20px;line-height:28px">Para ligar hoje</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Corpo</div>Inter 400 · 15/24</div>
+<div style="flex:1 1 320px;min-width:0;font-size:15px;line-height:24px;color:#31424F">Cada contato registrado tira o orçamento da fila.</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Tabela</div>Inter 400 e 600 · 14/20</div>
+<div style="flex:1 1 320px;min-width:0;font-size:14px;line-height:20px"><span style="font-weight:600">Troca de compressor</span> <span style="color:#31424F">· Carla Mendes</span></div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Rótulo e cabeçalho de coluna</div>Inter 600 · 13/18</div>
+<div style="flex:1 1 320px;min-width:0;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Responsável</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px;padding:20px 24px;border-top:1px solid #E7EDF2">
+<div style="flex:0 0 220px;font-size:13px;line-height:18px;color:#52646F"><div style="font-weight:600;color:#0F1F2B;font-size:14px;line-height:20px">Legenda</div>Inter 400 · 13/18</div>
+<div style="flex:1 1 320px;min-width:0;font-size:13px;line-height:18px;color:#52646F">Mostrando 1–8 de 8 orçamentos</div>
+</div>
+
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Espaçamento, forma e altura</h2>
+<p style="margin:0;color:#52646F">Escala de 4 px. Todo controle tem 44 px de altura, para o toque funcionar no celular. Superfícies só levam borda: sombra fica para o que flutua.</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:24px">
+
+<div style="flex:1 1 420px;min-width:0;background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:14px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Escala de espaçamento</h3>
+<sc-for list="{{spacing}}" as="s" hint-placeholder-count="7">
+<div style="display:flex;align-items:center;gap:16px">
+<div style="flex:0 0 48px;font-size:13px;line-height:18px;color:#52646F;font-variant-numeric:tabular-nums">{{s.label}}</div>
+<div style="flex:0 0 auto;height:16px;background:#1B5FA6;width:{{s.w}}"></div>
+<div style="font-size:13px;line-height:18px;color:#52646F">{{s.use}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:24px">
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Raios</h3>
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div style="width:88px;height:56px;background:#EAF2FA;border:1px solid #C3CFD9;border-radius:4px"></div><span style="font-size:13px;line-height:18px;color:#52646F">4 px · tags de status</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div style="width:88px;height:56px;background:#EAF2FA;border:1px solid #C3CFD9;border-radius:6px"></div><span style="font-size:13px;line-height:18px;color:#52646F">6 px · botões e campos</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div style="width:88px;height:56px;background:#EAF2FA;border:1px solid #C3CFD9;border-radius:8px"></div><span style="font-size:13px;line-height:18px;color:#52646F">8 px · quadros e painéis</span></div>
+</div>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:16px">
+<h3 style="margin:0;font-size:16px;line-height:24px;font-weight:600">Elevação</h3>
+<div style="display:flex;flex-wrap:wrap;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div style="width:120px;height:56px;background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px"></div><span style="font-size:13px;line-height:18px;color:#52646F">Quadro e tabela: só borda</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div style="width:120px;height:56px;background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;box-shadow:0 16px 48px rgba(15,31,43,0.18)"></div><span style="font-size:13px;line-height:18px;color:#52646F">Painel lateral e busca</span></div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Layout das telas</h2>
+<p style="margin:0;color:#52646F">Toda tela segue a mesma estrutura, para ninguém precisar reaprender onde as coisas ficam.</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="flex:1 1 440px;min-width:0;border:1px solid #C3CFD9;border-radius:8px;background:#F4F7FA;overflow:hidden">
+<div style="background:#FFFFFF;border-bottom:1px solid #DDE5EC;min-height:48px;display:flex;flex-wrap:wrap;align-items:stretch;gap:4px 16px;padding:0 16px;font-size:12px;line-height:16px;color:#52646F">
+<span style="align-self:center;font-weight:700;color:#1B5FA6">ClimaFácil</span>
+<span style="display:flex;align-items:center;font-weight:600;color:#144C88;border-bottom:3px solid #1B5FA6;padding:0 6px">Painel</span>
+<span style="display:flex;align-items:center;padding:0 6px">Orçamentos</span>
+<span style="display:flex;align-items:center;padding:0 6px">Clientes</span>
+<span style="display:flex;align-items:center;padding:0 6px">Responsáveis</span>
+<span style="align-self:center;margin-left:auto">Buscar em tudo</span>
+</div>
+<div style="padding:24px">
+<div style="border:1.5px dashed #1B5FA6;padding:12px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:12px;line-height:16px;font-weight:600;color:#144C88">Conteúdo · largura máxima 1200 px · gutters de 24 px</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-weight:700;font-size:20px;line-height:28px">Título</span><span style="background:#1B5FA6;color:#FFFFFF;font-size:12px;line-height:16px;font-weight:600;padding:8px 12px;border-radius:6px">Ação primária</span></div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden;font-size:12px;line-height:16px;color:#52646F">
+<div style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid #DDE5EC"><span style="border:1px solid #C3CFD9;border-radius:6px;padding:4px 10px;min-width:120px">Buscar…</span><span style="background:#1B5FA6;color:#FFFFFF;border-radius:6px;padding:4px 10px;font-weight:600">Filtro</span><span style="border:1px solid #C3CFD9;border-radius:6px;padding:4px 10px">Filtro</span></div>
+<div style="padding:8px 12px;background:#F4F7FA;font-weight:600;border-bottom:1px solid #DDE5EC">Cabeçalho das colunas</div>
+<div style="padding:14px 12px;border-bottom:1px solid #E7EDF2;display:flex;justify-content:space-between;gap:8px"><span>Linha · 68 px</span><span>Ações à direita</span></div>
+<div style="padding:14px 12px;border-bottom:1px solid #E7EDF2;display:flex;justify-content:space-between;gap:8px"><span>Linha · 68 px</span><span>Ações à direita</span></div>
+<div style="padding:8px 12px;display:flex;justify-content:space-between;gap:8px"><span>Mostrando 1–8 de 8</span><span>Paginação</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<sc-for list="{{layoutRules}}" as="r" hint-placeholder-count="8">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:0 0 20px;font-size:15px;line-height:24px;font-weight:600;color:#52646F;font-variant-numeric:tabular-nums">{{r.n}}</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:15px;line-height:24px">{{r.title}}</div><div style="font-size:14px;line-height:20px;color:#52646F">{{r.text}}</div></div>
+</div>
+</sc-for>
+</div>
+
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      brandColors: [
+        { name: 'Azul ClimaFácil', hex: '#1B5FA6 · --cf-primary', use: 'Ação primária, links e aba ativa.', bg: '#1B5FA6', fg: '#FFFFFF', sample: 'Aa' },
+        { name: 'Azul profundo', hex: '#144C88 · --cf-primary-hover', use: 'Hover do botão primário e texto sobre azul claro.', bg: '#144C88', fg: '#FFFFFF', sample: 'Aa' },
+        { name: 'Azul foco', hex: '#BBD6F0 · --cf-focus-soft', use: 'Halo de foco dos campos.', bg: '#BBD6F0', fg: '#144C88', sample: 'Aa' },
+        { name: 'Azul névoa', hex: '#EAF2FA · --cf-primary-50', use: 'Hover de ícones e item selecionado na busca.', bg: '#EAF2FA', fg: '#144C88', sample: 'Aa' }
+      ],
+      neutralColors: [
+        { name: 'Fundo', hex: '#F4F7FA · --cf-bg', use: 'Fundo da página.', bg: '#F4F7FA', fg: '#0F1F2B', sample: 'Aa' },
+        { name: 'Superfície', hex: '#FFFFFF · --cf-surface', use: 'Quadros, tabelas, painéis e campos.', bg: '#FFFFFF', fg: '#0F1F2B', sample: 'Aa' },
+        { name: 'Borda', hex: '#DDE5EC · --cf-border', use: 'Divisores de linha e contorno de quadros.', bg: '#DDE5EC', fg: '#0F1F2B', sample: 'Aa' },
+        { name: 'Borda de campo', hex: '#C3CFD9 · --cf-border-strong', use: 'Contorno de campos e botões secundários.', bg: '#C3CFD9', fg: '#0F1F2B', sample: 'Aa' },
+        { name: 'Texto principal', hex: '#0F1F2B · --cf-text', use: 'Títulos, nomes e valores. 16:1 sobre branco.', bg: '#0F1F2B', fg: '#FFFFFF', sample: 'Aa' },
+        { name: 'Texto de corpo', hex: '#31424F · --cf-text-2', use: 'Descrições e texto corrido. 10:1.', bg: '#31424F', fg: '#FFFFFF', sample: 'Aa' },
+        { name: 'Texto de apoio', hex: '#52646F · --cf-text-3', use: 'Cabeçalhos de tabela e legendas. 6:1.', bg: '#52646F', fg: '#FFFFFF', sample: 'Aa' },
+        { name: 'Placeholder', hex: '#5F707B · --cf-text-4', use: 'Texto de exemplo nos campos. 5:1.', bg: '#5F707B', fg: '#FFFFFF', sample: 'Aa' }
+      ],
+      statusColors: [
+        { name: 'Enviado', hex: '#EAF2FA / #144C88', use: 'Proposta enviada ao cliente.', bg: '#EAF2FA', fg: '#144C88', sample: 'Enviado' },
+        { name: 'Em negociação', hex: '#ECEBFB / #3730A3', use: 'Cliente e equipe ajustando a proposta.', bg: '#ECEBFB', fg: '#3730A3', sample: 'Em negociação' },
+        { name: 'Sem resposta', hex: '#E9EEF2 / #3D4F5C', use: 'O cliente ainda não respondeu.', bg: '#E9EEF2', fg: '#3D4F5C', sample: 'Sem resposta' },
+        { name: 'Ganho', hex: '#E4F5EA / #14693A', use: 'Orçamento aprovado.', bg: '#E4F5EA', fg: '#14693A', sample: 'Ganho' }
+      ],
+      alertColors: [
+        { name: 'Parado', hex: '#FFF0E0 / #A34A06', use: 'Sem contato há 15 a 29 dias. Também o número de dinheiro parado.', bg: '#FFF0E0', fg: '#A34A06', sample: 'Parado há 15 dias' },
+        { name: 'Parado, crítico', hex: '#FDECEC / #A12A2A', use: 'Sem contato há 30 dias ou mais. Também erros de formulário.', bg: '#FDECEC', fg: '#A12A2A', sample: 'Parado há 33 dias' },
+        { name: 'Perigo sólido', hex: '#B42318 · --cf-danger', use: 'Botão Excluir e confirmações destrutivas.', bg: '#B42318', fg: '#FFFFFF', sample: 'Excluir' }
+      ],
+      spacing: [
+        { label: '4 px', w: '4px', use: 'Entre linhas de um mesmo dado' },
+        { label: '8 px', w: '8px', use: 'Entre itens de um grupo' },
+        { label: '12 px', w: '12px', use: 'Entre texto e controle' },
+        { label: '16 px', w: '16px', use: 'Entre campos e na barra de busca' },
+        { label: '24 px', w: '24px', use: 'Gutter da página e padding de painel' },
+        { label: '32 px', w: '32px', use: 'Entre blocos da página' },
+        { label: '48 px', w: '48px', use: 'Entre seções grandes' }
+      ],
+      layoutRules: [
+        { n: '1', title: 'Um cabeçalho para o app inteiro', text: 'Marca, navegação e busca global, sempre no mesmo lugar. A aba ativa é só texto azul com uma barra embaixo.' },
+        { n: '2', title: 'Conteúdo centralizado', text: 'Largura máxima de 1200 px, gutters de 24 px (16 px no celular).' },
+        { n: '3', title: 'Cabeçalho de página fixo', text: 'Título à esquerda, ação primária à direita. Não muda de lugar entre telas nem quando um formulário abre.' },
+        { n: '4', title: 'Listas dentro de um quadro', text: 'Busca e filtros no topo, tabela no meio, paginação no rodapé.' },
+        { n: '5', title: 'Formulário em painel lateral', text: 'O painel abre por cima e a lista continua no mesmo lugar.' },
+        { n: '6', title: 'Ações de linha na última coluna', text: 'Editar e excluir à direita, iguais em todas as listas.' },
+        { n: '7', title: 'Dados sem surpresa', text: 'Nome em uma linha só, valor à direita com números tabulares, campo vazio mostra “Não informado”.' },
+        { n: '8', title: 'Sem decoração', text: 'Nada de ícone dentro de círculo, selo em pílula, avatar com iniciais, sombra em quadro ou gradiente. Cada elemento precisa carregar informação.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
