@@ -1,27 +1,34 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type Variant = 'primary' | 'secondary' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
-const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: 'bg-sky-700 text-white hover:bg-sky-800',
-  danger: 'bg-red-700 text-white hover:bg-red-800',
-  secondary: 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100',
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary:
+    'bg-[#1B5FA6] text-white border border-[#1B5FA6] hover:bg-[#144C88] hover:border-[#144C88] disabled:bg-[#E3E9EE] disabled:text-[#52646F] disabled:border-[#E3E9EE]',
+  secondary:
+    'bg-white text-[#0F1F2B] border border-[#C3CFD9] hover:bg-[#F4F7FA] hover:border-[#8FA3B2] disabled:bg-[#F4F7FA] disabled:text-[#5F707B] disabled:border-[#DDE5EC]',
+  danger:
+    'bg-[#B42318] text-white border border-[#B42318] hover:bg-[#912016] hover:border-[#912016] disabled:bg-[#E3E9EE] disabled:text-[#52646F] disabled:border-[#E3E9EE]',
+  ghost:
+    'bg-transparent text-[#144C88] border border-transparent hover:bg-[#EAF2FA] disabled:text-[#5F707B]',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
+  variant?: ButtonVariant;
 }
 
 export function Button({
   variant = 'primary',
   className = '',
   type = 'button',
+  disabled,
   ...rest
 }: ButtonProps) {
   return (
     <button
       type={type}
-      className={`min-h-11 w-full rounded-md px-4 py-2 text-base font-medium disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto ${VARIANT_CLASSES[variant]} ${className}`}
+      disabled={disabled}
+      className={`inline-flex h-11 items-center justify-center rounded-[6px] px-5 text-[15px] font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${className}`}
       {...rest}
     />
   );

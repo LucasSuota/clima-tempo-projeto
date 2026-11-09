@@ -36,3 +36,11 @@ export function formatPercent(rate: number | null): string {
 export function formatDays(days: number): string {
   return `${days} ${days === 1 ? 'dia' : 'dias'}`;
 }
+
+// Presentation only: it picks the color of the "days without contact" text. Whether a quote
+// is stale comes from `isStale` in the API; the front never decides that.
+export const CRITICAL_DAYS_WITHOUT_CONTACT = 30;
+
+export function staleTone(days: number): 'stale' | 'critical' {
+  return days >= CRITICAL_DAYS_WITHOUT_CONTACT ? 'critical' : 'stale';
+}

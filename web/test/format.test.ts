@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatCurrency, formatDate, formatDays, formatPercent } from '../src/format';
+import { formatCurrency, formatDate, formatDays, formatPercent, staleTone } from '../src/format';
 
 // Intl uses a no-break space (U+00A0) between "R$" and the number.
 const NBSP = ' ';
@@ -55,5 +55,19 @@ describe('formatDays', () => {
 
   it('uses the singular for one day', () => {
     expect(formatDays(1)).toBe('1 dia');
+  });
+});
+
+describe('staleTone', () => {
+  it('stays in the regular stale tone just below the critical threshold', () => {
+    expect(staleTone(29)).toBe('stale');
+  });
+
+  it('turns critical at the threshold', () => {
+    expect(staleTone(30)).toBe('critical');
+  });
+
+  it('uses the regular stale tone for a single day', () => {
+    expect(staleTone(1)).toBe('stale');
   });
 });

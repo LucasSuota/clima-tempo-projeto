@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ClimaFácil — Componentes</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#F4F7FA}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #3B8AD6;outline-offset:2px}
+.cf-search:focus-within{border-color:#1B5FA6;box-shadow:0 0 0 3px #BBD6F0}
+.cf-search input{outline:none}
+.cf-search input::-webkit-search-cancel-button{display:none}
+input::placeholder{color:#5F707B}
+.cf-field:focus-visible{outline:none;border-color:#1B5FA6;box-shadow:0 0 0 3px #BBD6F0}
+.cf-icon-btn:hover{background:#EAF2FA;color:#144C88}
+.cf-icon-btn-danger:hover{background:#FDECEC;color:#A12A2A}
+.cf-chip:hover{border-color:#8FA3B2}
+.cf-row:hover{background:#F4F8FB}
+.cf-page:hover{background:#EAF2FA}
+.cf-link:hover{color:#1B5FA6;text-decoration:underline}
+.hit{background:#FFE7A8;color:#0F1F2B;padding:0 1px}
+</style>
+</helmet>
+<div style="font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:24px;color:#0F1F2B;background:#F4F7FA;min-height:4700px;padding-bottom:96px">
+
+<header style="background:#FFFFFF;border-bottom:1px solid #DDE5EC">
+<div style="max-width:1152px;margin:0 auto;padding:48px 32px 40px;display:flex;flex-direction:column;gap:12px">
+<h1 style="margin:0;font-weight:700;font-size:44px;line-height:52px;letter-spacing:-0.02em">Componentes</h1>
+<p style="margin:0;max-width:680px;font-size:16px;line-height:24px;color:#31424F">O anel de foco é <span style="font-weight:600">#3B8AD6</span> (3,6:1 sobre branco) e aparece só no teclado.</p>
+</div>
+</header>
+
+<section style="max-width:1152px;margin:0 auto;padding:56px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Botões</h2>
+<p style="margin:0;color:#52646F">Uma ação primária por tela. Altura de 44 px, raio de 6 px.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:20px;overflow-x:auto">
+<sc-for list="{{buttonRows}}" as="row" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:16px;min-width:720px">
+<div style="flex:0 0 112px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">{{row.state}}</div>
+<sc-for list="{{row.cells}}" as="b" hint-placeholder-count="4">
+<div style="flex:1 1 0;min-width:0"><button type="button" disabled="{{b.disabled}}" style="height:44px;padding:0 20px;border-radius:6px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;background:{{b.bg}};color:{{b.fg}};border:1px solid {{b.bd}};box-shadow:{{b.sh}}">{{b.label}}</button></div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-wrap:wrap;gap:24px 40px;align-items:center">
+<div style="font-size:13px;line-height:18px;font-weight:600;color:#52646F;flex:0 0 112px">Ícone, 44 × 44</div>
+<div style="display:flex;align-items:center;gap:4px">
+<button type="button" class="cf-icon-btn" aria-label="Editar" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></button>
+<button type="button" class="cf-icon-btn-danger" aria-label="Excluir" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"></path></svg></button>
+<button type="button" class="cf-icon-btn" aria-label="Fechar" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+<div style="font-size:14px;line-height:20px;color:#52646F;flex:1 1 320px;min-width:0">Cinza em repouso. No hover, editar fica azul e excluir fica vermelho. Sempre com <span style="font-weight:600;color:#0F1F2B">aria-label</span>, porque não têm texto.</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Campos de formulário</h2>
+<p style="margin:0;color:#52646F">Rótulo sempre visível acima do campo. Obrigatório leva asterisco vermelho; o erro aparece embaixo, em texto.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:24px">
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-f1" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Nome <span style="color:#A12A2A">*</span></label>
+<input id="cf-f1" class="cf-field" type="text" placeholder="Ex.: Marina Costa" style="height:44px;border:1px solid #C3CFD9;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#FFFFFF;color:#0F1F2B;width:100%">
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Padrão</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-f2" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Nome <span style="color:#A12A2A">*</span></label>
+<input id="cf-f2" class="cf-field" type="text" value="Marina Co" style="height:44px;border:1px solid #1B5FA6;box-shadow:0 0 0 3px #BBD6F0;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#FFFFFF;color:#0F1F2B;width:100%">
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Foco</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-f3" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Nome <span style="color:#A12A2A">*</span></label>
+<input id="cf-f3" class="cf-field" type="text" aria-invalid="true" aria-describedby="cf-f3e" style="height:44px;border:1px solid #A12A2A;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#FFFFFF;color:#0F1F2B;width:100%">
+<span id="cf-f3e" style="font-size:13px;line-height:18px;font-weight:600;color:#A12A2A">Informe o nome.</span>
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Erro</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-f4" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Cargo/função</label>
+<input id="cf-f4" class="cf-field" type="text" value="Vendedora" disabled="" style="height:44px;border:1px solid #DDE5EC;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#F4F7FA;color:#52646F;width:100%">
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Desabilitado</span>
+</div>
+
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Busca</h2>
+<p style="margin:0;color:#52646F">O mesmo padrão em toda lista: campo, filtros, contador e termo destacado nos resultados.</p>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:28px">
+
+<div style="display:flex;flex-wrap:wrap;gap:24px 40px;align-items:flex-start">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Campo de busca<br><span style="font-weight:400">vazio e com texto</span></div>
+<div style="flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:16px;max-width:560px">
+
+<div class="cf-search" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 14px;border:1px solid #C3CFD9;border-radius:6px;background:#FFFFFF;color:#52646F">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 auto"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+<input type="search" aria-label="Buscar por descrição, cliente ou responsável" placeholder="Buscar por descrição, cliente ou responsável" style="flex:1 1 auto;min-width:0;border:0;background:transparent;font-family:inherit;font-size:15px;color:#0F1F2B;height:40px">
+</div>
+
+<div class="cf-search" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 14px;border:1px solid #1B5FA6;box-shadow:0 0 0 3px #BBD6F0;border-radius:6px;background:#FFFFFF;color:#52646F">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 auto"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+<input type="search" aria-label="Buscar" value="split" style="flex:1 1 auto;min-width:0;border:0;background:transparent;font-family:inherit;font-size:15px;color:#0F1F2B;height:40px">
+<button type="button" class="cf-icon-btn" aria-label="Limpar busca" style="flex:0 0 auto;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+
+</div>
+</div>
+
+<div style="height:1px;background:#E7EDF2"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px 40px;align-items:flex-start">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Filtros<br><span style="font-weight:400">a contagem respeita a busca</span></div>
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+<button type="button" class="cf-chip" aria-pressed="{{c.pressed}}" style="display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:6px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;background:{{c.bg}};color:{{c.fg}};border:1px solid {{c.bd}}">{{c.label}}<span style="font-weight:400;font-variant-numeric:tabular-nums;color:{{c.nfg}}">{{c.count}}</span></button>
+</sc-for>
+</div>
+</div>
+
+<div style="height:1px;background:#E7EDF2"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px 40px;align-items:flex-start">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Contador e destaque<br><span style="font-weight:400">aria-live, o leitor de tela é avisado</span></div>
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px">
+<p aria-live="polite" style="margin:0;font-size:14px;line-height:20px;color:#52646F"><span style="font-weight:600;color:#0F1F2B">2 resultados</span> para “split”</p>
+<div style="border:1px solid #DDE5EC;border-radius:6px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;max-width:480px">
+<span style="font-size:14px;line-height:20px;font-weight:600"><span class="hit">Split</span> 24000 BTUs para sala comercial</span>
+<span style="font-size:13px;line-height:18px;color:#52646F">Hélio Barros · Paulo Nogueira</span>
+</div>
+<div style="border:1px solid #DDE5EC;border-radius:6px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;max-width:480px">
+<span style="font-size:14px;line-height:20px;font-weight:600"><span class="hit">Split</span> inverter 18000 BTUs no escritório</span>
+<span style="font-size:13px;line-height:18px;color:#52646F">Bruno Lima · Rafael Teixeira</span>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Status, tempo parado e dado ausente</h2>
+<p style="margin:0;color:#52646F">O status é uma tag retangular só com texto. O tempo parado é texto colorido logo abaixo, nunca uma segunda tag.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Tags de status</div>
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-wrap:wrap;gap:12px">
+<sc-for list="{{badges}}" as="b" hint-placeholder-count="4">
+<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;background:{{b.bg}};color:{{b.fg}}">{{b.label}}</span>
+</sc-for>
+</div>
+</div>
+
+<div style="height:1px;background:#E7EDF2"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Tempo parado</div>
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:center">
+<span style="font-size:13px;line-height:18px;font-weight:600;color:#A34A06">Parado há 15 dias</span>
+<span style="font-size:13px;line-height:18px;font-weight:600;color:#A34A06">Parado há 29 dias</span>
+<span style="font-size:13px;line-height:18px;font-weight:600;color:#A12A2A">Parado há 33 dias</span>
+<span style="font-size:13px;line-height:18px;color:#52646F">Laranja de 15 a 29 dias, vermelho a partir de 30.</span>
+</div>
+</div>
+
+<div style="height:1px;background:#E7EDF2"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Dado ausente</div>
+<div style="flex:1 1 420px;min-width:0;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:center">
+<span style="font-size:14px;line-height:20px;font-style:italic;color:#52646F">Não informado</span>
+<span style="font-size:13px;line-height:18px;color:#52646F">No lugar do “—” solto, que o leitor de tela lê como nada.</span>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Resumo em número</h2>
+<p style="margin:0;color:#52646F">Abre o Painel. Rótulo pequeno, número grande, uma linha de explicação. Só o dinheiro parado usa laranja; os demais ficam em texto principal.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:1px;background:#DDE5EC;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<sc-for list="{{figures}}" as="f" hint-placeholder-count="3">
+<div style="background:#FFFFFF;padding:24px;display:flex;flex-direction:column;gap:4px">
+<span style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">{{f.label}}</span>
+<span style="font-weight:700;font-size:36px;line-height:44px;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;color:{{f.color}}">{{f.value}}</span>
+<span style="font-size:13px;line-height:18px;color:#52646F">{{f.caption}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Linha da fila “Para ligar hoje”</h2>
+<p style="margin:0;color:#52646F">Cada linha responde às três perguntas: o que está parado, quem liga e quanto vale. Duas ações: chamar no WhatsApp e registrar o contato. Sem telefone, vira um link para cadastrar.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="overflow-x:auto">
+<div role="table" aria-label="Exemplo da fila de ligação" style="min-width:980px">
+<div role="rowgroup">
+<div role="row" style="display:grid;grid-template-columns:minmax(220px,2fr) minmax(150px,1.2fr) 120px 100px 320px;gap:16px;align-items:center;min-height:48px;padding:0 20px;background:#F4F7FA;border-bottom:1px solid #DDE5EC;font-size:13px;line-height:18px;font-weight:600;color:#52646F">
+<div role="columnheader">Orçamento</div>
+<div role="columnheader">Quem liga</div>
+<div role="columnheader" style="text-align:right">Valor</div>
+<div role="columnheader">Parado há</div>
+<div role="columnheader" style="text-align:right">Ações</div>
+</div>
+</div>
+<div role="rowgroup">
+<sc-for list="{{queueRows}}" as="r" hint-placeholder-count="2">
+<div role="row" class="cf-row" style="display:grid;grid-template-columns:minmax(220px,2fr) minmax(150px,1.2fr) 120px 100px 320px;gap:16px;align-items:center;min-height:72px;padding:12px 20px;border-top:1px solid #E7EDF2">
+<div role="cell" style="min-width:0"><div style="font-size:14px;line-height:20px;font-weight:600">{{r.desc}}</div><div style="font-size:13px;line-height:18px;color:#52646F">{{r.cliente}}</div></div>
+<div role="cell" style="min-width:0"><div style="font-size:14px;line-height:20px;font-weight:500">{{r.resp}}</div><div style="font-size:13px;line-height:18px;color:#52646F">{{r.cargo}}</div></div>
+<div role="cell" style="text-align:right;font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{r.valor}}</div>
+<div role="cell" style="font-size:14px;line-height:20px;font-weight:700;white-space:nowrap;color:{{r.diasColor}}">{{r.dias}}</div>
+<div role="cell" style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+<sc-if value="{{r.hasPhone}}" hint-placeholder-val="{{ true }}">
+<a href="#" style="display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border:1px solid #C3CFD9;border-radius:6px;background:#FFFFFF;font-size:14px;font-weight:600;color:#0F1F2B">WhatsApp</a>
+</sc-if>
+<sc-if value="{{r.noPhone}}" hint-placeholder-val="{{ false }}">
+<span style="font-size:13px;line-height:18px;color:#52646F">Sem telefone.</span>
+<a href="#" class="cf-link" style="font-size:13px;line-height:18px;font-weight:600;color:#144C88">Cadastrar</a>
+</sc-if>
+<button type="button" style="height:44px;padding:0 16px;border-radius:6px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;background:#1B5FA6;color:#FFFFFF;border:1px solid #1B5FA6">Registrar contato</button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Tabela</h2>
+<p style="margin:0;color:#52646F">Linhas de 68 px, nome em uma linha só, valor à direita, ações na última coluna. A segunda linha mostra o hover.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;overflow:hidden">
+<div style="overflow-x:auto">
+<div role="table" aria-label="Exemplo de tabela de orçamentos" style="min-width:980px">
+<div role="rowgroup">
+<div role="row" style="display:grid;grid-template-columns:minmax(200px,2fr) minmax(120px,1.1fr) minmax(170px,1.4fr) 112px minmax(160px,1.2fr) 100px;gap:16px;align-items:center;min-height:48px;padding:0 20px;background:#F4F7FA;border-bottom:1px solid #DDE5EC;font-size:13px;line-height:18px;font-weight:600;color:#52646F">
+<div role="columnheader">Descrição</div>
+<div role="columnheader">Cliente</div>
+<div role="columnheader">Responsável</div>
+<div role="columnheader" style="text-align:right">Valor</div>
+<div role="columnheader">Status</div>
+<div role="columnheader" style="text-align:right">Ações</div>
+</div>
+</div>
+<div role="rowgroup">
+<sc-for list="{{sampleRows}}" as="r" hint-placeholder-count="3">
+<div role="row" class="cf-row" style="display:grid;grid-template-columns:minmax(200px,2fr) minmax(120px,1.1fr) minmax(170px,1.4fr) 112px minmax(160px,1.2fr) 100px;gap:16px;align-items:center;min-height:68px;padding:12px 20px;border-top:1px solid #E7EDF2;background:{{r.bg}}">
+<div role="cell" style="min-width:0"><a href="Orcamentos.dc.html" class="cf-link" style="font-size:14px;line-height:20px;font-weight:600;color:#0F1F2B">{{r.desc}}</a></div>
+<div role="cell" style="min-width:0;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.cliente}}</div>
+<div role="cell" style="min-width:0"><div style="font-size:14px;line-height:20px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.resp}}</div><div style="font-size:13px;line-height:18px;color:#52646F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.cargo}}</div></div>
+<div role="cell" style="text-align:right;font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{r.valor}}</div>
+<div role="cell" style="display:flex;flex-direction:column;gap:2px;align-items:flex-start">
+<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;background:{{r.sbg}};color:{{r.sfg}}">{{r.slabel}}</span>
+<sc-if value="{{r.hasAlert}}" hint-placeholder-val="{{ true }}">
+<span style="font-size:13px;line-height:18px;font-weight:600;color:{{r.alertColor}}">{{r.alertText}}</span>
+</sc-if>
+</div>
+<div role="cell" style="display:flex;justify-content:flex-end;gap:4px">
+<button type="button" class="cf-icon-btn" aria-label="Editar {{r.desc}}" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></button>
+<button type="button" class="cf-icon-btn-danger" aria-label="Excluir {{r.desc}}" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"></path></svg></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Paginação</h2>
+<p style="margin:0;color:#52646F">No rodapé do quadro da lista. Os números abaixo são só de exemplo.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:24px">
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Várias páginas</div>
+<div style="flex:1 1 520px;min-width:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px">
+<span style="font-size:13px;line-height:18px;color:#52646F">Mostrando <span style="font-weight:600;color:#0F1F2B">31–40</span> de <span style="font-weight:600;color:#0F1F2B">84</span> orçamentos</span>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px">
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;line-height:18px;color:#52646F">Linhas por página
+<select style="height:44px;border:1px solid #C3CFD9;border-radius:6px;padding:0 12px;background:#FFFFFF;font-family:inherit;font-size:14px;color:#0F1F2B"><option>10</option><option>25</option><option>50</option></select></label>
+<nav aria-label="Paginação" style="display:flex;align-items:center;gap:4px">
+<button type="button" aria-label="Página anterior" class="cf-page" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C3CFD9;border-radius:6px;background:#FFFFFF;color:#0F1F2B;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+<sc-for list="{{pages}}" as="p" hint-placeholder-count="7">
+<button type="button" class="cf-page" aria-current="{{p.current}}" aria-label="{{p.aria}}" style="min-width:44px;height:44px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid {{p.bd}};border-radius:6px;font-family:inherit;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;background:{{p.bg}};color:{{p.fg}}">{{p.label}}</button>
+</sc-for>
+<button type="button" aria-label="Próxima página" class="cf-page" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #C3CFD9;border-radius:6px;background:#FFFFFF;color:#0F1F2B;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
+</nav>
+</div>
+</div>
+</div>
+
+<div style="height:1px;background:#E7EDF2"></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center">
+<div style="flex:0 0 160px;font-size:13px;line-height:18px;font-weight:600;color:#52646F">Página única</div>
+<div style="flex:1 1 520px;min-width:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px">
+<span style="font-size:13px;line-height:18px;color:#52646F">Mostrando <span style="font-weight:600;color:#0F1F2B">1–8</span> de <span style="font-weight:600;color:#0F1F2B">8</span> clientes</span>
+<nav aria-label="Paginação" style="display:flex;align-items:center;gap:4px">
+<button type="button" aria-label="Página anterior" disabled="" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE5EC;border-radius:6px;background:#F4F7FA;color:#5F707B;cursor:not-allowed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+<button type="button" aria-current="page" aria-label="Página 1" style="min-width:44px;height:44px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #1B5FA6;border-radius:6px;font-family:inherit;font-size:14px;font-weight:600;background:#1B5FA6;color:#FFFFFF">1</button>
+<button type="button" aria-label="Próxima página" disabled="" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #DDE5EC;border-radius:6px;background:#F4F7FA;color:#5F707B;cursor:not-allowed"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
+</nav>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Navegação</h2>
+<p style="margin:0;color:#52646F">Abas do cabeçalho: só texto. A ativa é azul, em negrito, com uma barra de 3 px colada na borda do cabeçalho. Sem fundo e sem cantos arredondados.</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:0 24px;display:flex;flex-wrap:wrap;gap:0 24px;align-items:stretch;min-height:88px">
+<div style="display:flex;flex-direction:column;justify-content:flex-end;gap:6px"><span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Normal</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;font-size:15px;font-weight:500;color:#31424F;border-bottom:3px solid transparent">Clientes</span></div>
+<div style="display:flex;flex-direction:column;justify-content:flex-end;gap:6px"><span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Hover</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;font-size:15px;font-weight:500;color:#144C88;border-bottom:3px solid transparent">Clientes</span></div>
+<div style="display:flex;flex-direction:column;justify-content:flex-end;gap:6px"><span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Ativa</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;font-size:15px;font-weight:600;color:#144C88;border-bottom:3px solid #1B5FA6">Clientes</span></div>
+<div style="display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding-bottom:4px"><span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F">Foco (teclado)</span><span style="display:flex;align-items:center;min-height:44px;padding:0 12px;font-size:15px;font-weight:500;color:#31424F;outline:3px solid #3B8AD6;outline-offset:-3px">Clientes</span></div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Painel lateral e estados vazios</h2>
+<p style="margin:0;color:#52646F">Formulários abrem por cima da lista, sem empurrar nada. Lista vazia ou busca sem resultado: um título, uma frase e uma ação. Sem ilustração nem ícone.</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+
+<div style="flex:1 1 520px;min-width:0;position:relative;height:520px;border:1px solid #C3CFD9;border-radius:8px;overflow:hidden;background:#F4F7FA">
+<div style="position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(15,31,43,0.45)"></div>
+<div role="dialog" aria-label="Novo responsável" style="position:absolute;top:0;right:0;bottom:0;width:min(400px,100%);background:#FFFFFF;box-shadow:0 16px 48px rgba(15,31,43,0.18);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 16px 24px;border-bottom:1px solid #DDE5EC">
+<h3 style="margin:0;font-weight:600;font-size:20px;line-height:28px">Novo responsável</h3>
+<button type="button" class="cf-icon-btn" aria-label="Fechar painel" style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:#52646F;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+<div style="flex:1 1 auto;padding:24px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-d1" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Nome <span style="color:#A12A2A">*</span></label>
+<input id="cf-d1" class="cf-field" type="text" aria-invalid="true" aria-describedby="cf-d1e" style="height:44px;border:1px solid #A12A2A;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#FFFFFF;color:#0F1F2B;width:100%">
+<span id="cf-d1e" style="font-size:13px;line-height:18px;font-weight:600;color:#A12A2A">Informe o nome.</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="cf-d2" style="font-size:13px;line-height:18px;font-weight:600;color:#52646F">Cargo/função <span style="color:#A12A2A">*</span></label>
+<input id="cf-d2" class="cf-field" type="text" value="Técnico responsável" style="height:44px;border:1px solid #C3CFD9;border-radius:6px;padding:0 14px;font-family:inherit;font-size:15px;background:#FFFFFF;color:#0F1F2B;width:100%">
+</div>
+<p style="margin:0;font-size:13px;line-height:18px;color:#52646F"><span style="color:#A12A2A">*</span> Campos obrigatórios</p>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;border-top:1px solid #DDE5EC;background:#F4F7FA">
+<button type="button" style="height:44px;padding:0 20px;border-radius:6px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;background:#FFFFFF;color:#0F1F2B;border:1px solid #C3CFD9">Cancelar</button>
+<button type="button" style="height:44px;padding:0 20px;border-radius:6px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;background:#1B5FA6;color:#FFFFFF;border:1px solid #1B5FA6">Salvar</button>
+</div>
+</div>
+</div>
+
+<div style="flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:24px">
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<h3 style="margin:0;font-weight:600;font-size:20px;line-height:28px">Nenhum orçamento encontrado</h3>
+<p style="margin:0 0 8px;max-width:320px;font-size:14px;line-height:20px;color:#52646F">Não encontramos resultados para “splt”. Confira a grafia ou tire algum filtro.</p>
+<button type="button" style="height:44px;padding:0 20px;border-radius:6px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;background:#FFFFFF;color:#0F1F2B;border:1px solid #C3CFD9">Limpar busca e filtros</button>
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F;margin-top:8px">Busca sem resultado</span>
+</div>
+
+<div style="background:#FFFFFF;border:1px solid #DDE5EC;border-radius:8px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<h3 style="margin:0;font-weight:600;font-size:20px;line-height:28px">Fila de hoje concluída</h3>
+<p style="margin:0 0 8px;max-width:320px;font-size:14px;line-height:20px;color:#52646F">Todos os contatos foram registrados. Eles voltam à fila se ficarem 15 dias sem contato de novo.</p>
+<span style="font-size:12px;line-height:16px;font-weight:600;color:#52646F;margin-top:8px">Fila vazia</span>
+</div>
+
+</div>
+</div>
+</section>
+
+<section style="max-width:1152px;margin:0 auto;padding:64px 32px 0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font-weight:700;font-size:28px;line-height:36px;letter-spacing:-0.01em">Regras do padrão de busca</h2>
+<p style="margin:0;color:#52646F">Valem para a busca de cada lista e para a busca global do cabeçalho.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:20px 40px">
+<sc-for list="{{searchRules}}" as="r" hint-placeholder-count="8">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:0 0 20px;font-size:15px;line-height:24px;font-weight:600;color:#52646F;font-variant-numeric:tabular-nums">{{r.n}}</div>
+<div style="min-width:0"><div style="font-weight:600;font-size:15px;line-height:24px">{{r.title}}</div><div style="font-size:14px;line-height:20px;color:#52646F">{{r.text}}</div></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":4700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const btn = (label, bg, fg, bd, sh, disabled) => ({ label, bg, fg, bd, sh, disabled });
+    const ring = '0 0 0 2px #FFFFFF, 0 0 0 5px #3B8AD6';
+    const pill = (label, count, on) => ({
+      label, count, pressed: on,
+      bg: on ? '#1B5FA6' : '#FFFFFF',
+      fg: on ? '#FFFFFF' : '#0F1F2B',
+      bd: on ? '#1B5FA6' : '#C3CFD9',
+      nfg: on ? '#FFFFFF' : '#52646F'
+    });
+    const page = (label, on, aria) => ({
+      label, aria,
+      current: on ? 'page' : 'false',
+      bg: on ? '#1B5FA6' : '#FFFFFF',
+      fg: on ? '#FFFFFF' : '#0F1F2B',
+      bd: on ? '#1B5FA6' : '#C3CFD9'
+    });
+    const ST = {
+      enviado: { label: 'Enviado', bg: '#EAF2FA', fg: '#144C88' },
+      negociacao: { label: 'Em negociação', bg: '#ECEBFB', fg: '#3730A3' },
+      semresposta: { label: 'Sem resposta', bg: '#E9EEF2', fg: '#3D4F5C' },
+      ganho: { label: 'Ganho', bg: '#E4F5EA', fg: '#14693A' }
+    };
+    const row = (desc, cliente, resp, cargo, valor, st, dias, bg) => {
+      const s = ST[st];
+      return {
+        desc, cliente, resp, cargo, valor, bg,
+        slabel: s.label, sbg: s.bg, sfg: s.fg,
+        hasAlert: dias > 0,
+        alertText: 'Parado há ' + dias + ' dias',
+        alertColor: dias >= 30 ? '#A12A2A' : '#A34A06'
+      };
+    };
+    const q = (desc, cliente, resp, cargo, valor, dias, phone) => ({
+      desc, cliente, resp, cargo, valor,
+      dias: dias + ' dias',
+      diasColor: dias >= 30 ? '#A12A2A' : '#A34A06',
+      hasPhone: phone, noPhone: !phone
+    });
+    return {
+      buttonRows: [
+        { state: 'Normal', cells: [
+          btn('Novo orçamento', '#1B5FA6', '#FFFFFF', '#1B5FA6', 'none', false),
+          btn('Cancelar', '#FFFFFF', '#0F1F2B', '#C3CFD9', 'none', false),
+          btn('Limpar busca', 'transparent', '#144C88', 'transparent', 'none', false),
+          btn('Excluir', '#B42318', '#FFFFFF', '#B42318', 'none', false)
+        ] },
+        { state: 'Hover', cells: [
+          btn('Novo orçamento', '#144C88', '#FFFFFF', '#144C88', 'none', false),
+          btn('Cancelar', '#F4F7FA', '#0F1F2B', '#8FA3B2', 'none', false),
+          btn('Limpar busca', '#EAF2FA', '#144C88', 'transparent', 'none', false),
+          btn('Excluir', '#912016', '#FFFFFF', '#912016', 'none', false)
+        ] },
+        { state: 'Foco (teclado)', cells: [
+          btn('Novo orçamento', '#1B5FA6', '#FFFFFF', '#1B5FA6', ring, false),
+          btn('Cancelar', '#FFFFFF', '#0F1F2B', '#C3CFD9', ring, false),
+          btn('Limpar busca', 'transparent', '#144C88', 'transparent', ring, false),
+          btn('Excluir', '#B42318', '#FFFFFF', '#B42318', ring, false)
+        ] },
+        { state: 'Desabilitado', cells: [
+          btn('Novo orçamento', '#E3E9EE', '#52646F', '#E3E9EE', 'none', true),
+          btn('Cancelar', '#F4F7FA', '#5F707B', '#DDE5EC', 'none', true),
+          btn('Limpar busca', 'transparent', '#5F707B', 'transparent', 'none', true),
+          btn('Excluir', '#E3E9EE', '#52646F', '#E3E9EE', 'none', true)
+        ] }
+      ],
+      chips: [
+        pill('Todos', '8', true),
+        pill('Em negociação', '2', false),
+        pill('Sem resposta', '4', false),
+        pill('Enviado', '1', false),
+        pill('Ganho', '1', false),
+        pill('Parados há 15+ dias', '4', false)
+      ],
+      badges: [ST.enviado, ST.negociacao, ST.semresposta, ST.ganho],
+      figures: [
+        { label: 'Dinheiro parado', value: 'R$ 12.270,00', color: '#A34A06', caption: '4 orçamentos sem contato há 15 dias ou mais' },
+        { label: 'Em aberto', value: 'R$ 80.120,00', color: '#0F1F2B', caption: '7 orçamentos ainda sem fechar' },
+        { label: 'Contatos registrados hoje', value: '0 de 4', color: '#0F1F2B', caption: 'Cada contato registrado tira o orçamento da fila.' }
+      ],
+      queueRows: [
+        q('Split inverter 18000 BTUs no escritório', 'Bruno Lima', 'Rafael Teixeira', 'Gerente comercial', 'R$ 4.200,00', 33, true),
+        q('Higienização de dutos', 'Diego Ferreira', 'Paulo Nogueira', 'Técnico responsável', 'R$ 1.950,00', 15, false)
+      ],
+      sampleRows: [
+        row('Troca de compressor', 'Carla Mendes', 'Paulo Nogueira', 'Técnico responsável', 'R$ 3.150,00', 'negociacao', 0, 'transparent'),
+        row('Higienização de dutos', 'Diego Ferreira', 'Paulo Nogueira', 'Técnico responsável', 'R$ 1.950,00', 'semresposta', 15, '#F4F8FB'),
+        row('Split inverter 18000 BTUs no escritório', 'Bruno Lima', 'Rafael Teixeira', 'Gerente comercial', 'R$ 4.200,00', 'semresposta', 33, 'transparent')
+      ],
+      pages: [
+        page('1', false, 'Página 1'),
+        page('…', false, 'Páginas intermediárias'),
+        page('3', false, 'Página 3'),
+        page('4', true, 'Página 4'),
+        page('5', false, 'Página 5'),
+        page('…', false, 'Páginas intermediárias'),
+        page('9', false, 'Página 9')
+      ],
+      searchRules: [
+        { n: '1', title: 'Um campo para vários campos', text: 'A busca procura ao mesmo tempo em descrição, cliente, responsável, cargo e valor.' },
+        { n: '2', title: 'Ignora acento e maiúscula', text: '“higienizacao” encontra “Higienização de dutos”.' },
+        { n: '3', title: 'Várias palavras, todas precisam bater', text: '“carla troca” encontra só o orçamento de troca de compressor da Carla.' },
+        { n: '4', title: 'Resultado na hora', text: 'Sem botão “Buscar”. O contador acima da lista se atualiza e é lido pelo leitor de tela.' },
+        { n: '5', title: 'Termo destacado', text: 'O trecho que bateu fica marcado em amarelo em cada célula.' },
+        { n: '6', title: 'Filtros somam com a busca', text: 'A contagem de cada filtro já considera o texto digitado.' },
+        { n: '7', title: 'Sem resultado explica e ajuda', text: 'Mostra o termo buscado e oferece “Limpar busca e filtros”.' },
+        { n: '8', title: 'Busca global no cabeçalho', text: 'Atalho ⌘K. Agrupa por orçamentos, clientes e responsáveis: “Carla” traz a cliente e os orçamentos dela.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -5,50 +5,78 @@ export interface Column<T> {
   cell: (item: T) => ReactNode;
   /** Skips the "header: value" label in the mobile card (use for the main column). */
   hideLabelOnCard?: boolean;
+  align?: 'left' | 'right' | 'center';
+  className?: string;
 }
 
 interface DataTableProps<T> {
   items: T[];
   columns: Column<T>[];
-  getKey: (item: T) => number;
+  getKey: (item: T) => number | string;
+  ariaLabel?: string;
 }
 
-// One column definition renders a table from `md:` up and a list of cards below it.
-export function DataTable<T>({ items, columns, getKey }: DataTableProps<T>) {
+export function DataTable<T>({ items, columns, getKey, ariaLabel }: DataTableProps<T>) {
   return (
     <>
-      <table className="hidden w-full border-collapse overflow-hidden rounded-md bg-white shadow-sm md:table">
-        <thead className="bg-slate-100 text-left text-sm text-slate-600">
-          <tr>
-            {columns.map((column) => (
-              <th key={column.header} scope="col" className="px-4 py-3 font-medium">
-                {column.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={getKey(item)} className="border-t border-slate-200 align-top">
+      {/* Desktop Table View */}
+      <div className="hidden w-full overflow-x-auto md:block">
+        <table aria-label={ariaLabel} className="w-full border-collapse text-left">
+          <thead className="border-b border-[#DDE5EC] bg-[#F4F7FA] text-[13px] leading-[18px] font-semibold text-[#52646F]">
+            <tr>
               {columns.map((column) => (
-                <td key={column.header} className="px-4 py-3 break-words">
-                  {column.cell(item)}
-                </td>
+                <th
+                  key={column.header}
+                  scope="col"
+                  className={`px-5 py-3.5 font-semibold ${
+                    column.align === 'right'
+                      ? 'text-right'
+                      : column.align === 'center'
+                        ? 'text-center'
+                        : 'text-left'
+                  } ${column.className ?? ''}`}
+                >
+                  {column.header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-[#E7EDF2]">
+            {items.map((item) => (
+              <tr key={getKey(item)} className="transition-colors hover:bg-[#F4F8FB]">
+                {columns.map((column) => (
+                  <td
+                    key={column.header}
+                    className={`px-5 py-3 text-sm text-[#0F1F2B] ${
+                      column.align === 'right'
+                        ? 'text-right tabular-nums'
+                        : column.align === 'center'
+                          ? 'text-center'
+                          : 'text-left'
+                    } ${column.className ?? ''}`}
+                  >
+                    {column.cell(item)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <ul className="space-y-3 md:hidden">
+      {/* Mobile Card View (without drop shadow, border-only, touch-friendly) */}
+      <ul className="divide-y divide-[#E7EDF2] md:hidden">
         {items.map((item) => (
-          <li key={getKey(item)} className="space-y-1 rounded-md bg-white p-4 shadow-sm">
+          <li key={getKey(item)} className="space-y-2 p-4 transition-colors hover:bg-[#F4F8FB]">
             {columns.map((column) => (
-              <div key={column.header} className="break-words">
+              <div
+                key={column.header}
+                className="flex flex-wrap items-baseline justify-between gap-2"
+              >
                 {!column.hideLabelOnCard && (
-                  <span className="mr-1 text-sm text-slate-500">{column.header}:</span>
+                  <span className="text-[13px] font-semibold text-[#52646F]">{column.header}:</span>
                 )}
-                {column.cell(item)}
+                <div className="text-sm text-[#0F1F2B]">{column.cell(item)}</div>
               </div>
             ))}
           </li>
