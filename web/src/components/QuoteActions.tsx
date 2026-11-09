@@ -7,7 +7,6 @@ interface QuoteActionsProps {
   onDelete: () => void;
 }
 
-// The confirmation is inline (no window.confirm) so it is accessible, styleable and works on mobile.
 export function QuoteActions({ disabled, onEdit, onDelete }: QuoteActionsProps) {
   const [confirming, setConfirming] = useState(false);
 
@@ -16,12 +15,12 @@ export function QuoteActions({ disabled, onEdit, onDelete }: QuoteActionsProps) 
       <div
         role="group"
         aria-label="Confirmar exclusão do orçamento"
-        className="flex flex-col gap-2 rounded-md bg-white p-4 shadow-sm"
+        className="flex flex-col gap-3 rounded-[8px] border border-[#DDE5EC] bg-white p-5"
       >
-        <p className="text-sm text-slate-700">
+        <p className="text-sm font-medium text-[#0F1F2B]">
           Excluir este orçamento? Os contatos registrados também serão excluídos.
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex flex-wrap gap-3">
           <Button
             variant="danger"
             disabled={disabled}
@@ -41,7 +40,7 @@ export function QuoteActions({ disabled, onEdit, onDelete }: QuoteActionsProps) 
   }
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row">
+    <div className="flex flex-wrap gap-3">
       <Button variant="secondary" disabled={disabled} onClick={onEdit}>
         Editar
       </Button>

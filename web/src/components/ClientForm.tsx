@@ -1,76 +1,137 @@
-import { useState, type FormEvent } from 'react';
+import type { FormEvent } from 'react';
 import { createClient, updateClient } from '../api/clients';
 import type { Client } from '../api/types';
+import { DRAFT_KEYS, isStringRecord } from '../draft-storage';
+import { usePersistedState } from '../hooks/usePersistedState';
 import { useSubmit } from '../hooks/useSubmit';
 import { Button } from './Button';
 import { FormField } from './FormField';
 
-const KNOWN_FIELDS = ['name', 'email', 'phone'];
+const KNOWN_FIELDS = ['name', 'email', 'phone'] as const;
+
+interface ClientFormValues {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+function parseValues(value: unknown): ClientFormValues | null {
+  return isStringRecord(value, KNOWN_FIELDS) ? value : null;
+}
 
 interface ClientFormProps {
   /** When present the form edits this client; the caller remounts it (key) to switch clients. */
   client?: Client;
   onSaved: () => void;
   onCancel: () => void;
+  inSlideOver?: boolean;
 }
 
-export function ClientForm({ client, onSaved, onCancel }: ClientFormProps) {
-  const [name, setName] = useState(client?.name ?? '');
-  const [email, setEmail] = useState(client?.email ?? '');
-  const [phone, setPhone] = useState(client?.phone ?? '');
+export function ClientForm({ client, onSaved, onCancel, inSlideOver = false }: ClientFormProps) {
+  const [values, setValues, discard] = usePersistedState<ClientFormValues>(
+    DRAFT_KEYS.clientForm(client?.id),
+    { name: client?.name ?? '', email: client?.email ?? '', phone: client?.phone ?? '' },
+    parseValues,
+  );
+  const { name, email, phone } = values;
   const { submitting, fieldErrors, message, run } = useSubmit(KNOWN_FIELDS);
 
   const canSubmit = name.trim() !== '' && !submitting;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    // Empty optional fields are left out instead of sent as empty strings; on update that clears them.
     const input = {
       name: name.trim(),
       ...(email.trim() !== '' && { email: email.trim() }),
       ...(phone.trim() !== '' && { phone: phone.trim() }),
     };
     const saved = await run(() => (client ? updateClient(client.id, input) : createClient(input)));
-    if (saved) onSaved();
+    if (!saved) return;
+    discard();
+    onSaved();
+  }
+
+  function handleCancel() {
+    discard();
+    onCancel();
   }
 
   return (
     <form
       noValidate
       onSubmit={handleSubmit}
-      className="mb-6 space-y-4 rounded-md bg-white p-4 shadow-sm"
+      className={
+        inSlideOver
+          ? 'flex flex-1 flex-col justify-between'
+          : 'mb-6 flex flex-col gap-5 rounded-[8px] border border-[#DDE5EC] bg-white p-6'
+      }
     >
-      <h2 className="text-lg font-semibold">{client ? 'Editar cliente' : 'Novo cliente'}</h2>
-      {message && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-red-800">
-          {message}
+      <div className={inSlideOver ? 'flex flex-col gap-5 p-6' : 'flex flex-col gap-5'}>
+        {!inSlideOver && (
+          <h2 className="text-[20px] leading-7 font-semibold text-[#0F1F2B]">
+            {client ? 'Editar cliente' : 'Novo cliente'}
+          </h2>
+        )}
+        {message && (
+          <p
+            role="alert"
+            className="rounded-[6px] border border-[#A12A2A] bg-[#FDECEC] p-3 text-sm font-medium text-[#A12A2A]"
+          >
+            {message}
+          </p>
+        )}
+        <FormField label="Nome" required error={fieldErrors.name}>
+          {(field) => (
+            <input
+              {...field}
+              className="cf-field"
+              placeholder="Ex.: Carla Mendes"
+              value={name}
+              onChange={(e) => setValues({ ...values, name: e.target.value })}
+            />
+          )}
+        </FormField>
+        <FormField label="E-mail" error={fieldErrors.email}>
+          {(field) => (
+            <input
+              {...field}
+              type="email"
+              className="cf-field"
+              placeholder="Ex.: carla@exemplo.com"
+              value={email}
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
+            />
+          )}
+        </FormField>
+        <FormField label="Telefone" error={fieldErrors.phone}>
+          {(field) => (
+            <input
+              {...field}
+              type="tel"
+              className="cf-field"
+              placeholder="Ex.: (11) 98765-4321"
+              value={phone}
+              onChange={(e) => setValues({ ...values, phone: e.target.value })}
+            />
+          )}
+        </FormField>
+        <p className="text-[13px] leading-[18px] text-[#52646F]">
+          <span className="text-[#A12A2A]">*</span> Campos obrigatórios
         </p>
-      )}
-      <FormField label="Nome" required error={fieldErrors.name}>
-        <input className="field-input" value={name} onChange={(e) => setName(e.target.value)} />
-      </FormField>
-      <FormField label="E-mail" error={fieldErrors.email}>
-        <input
-          type="email"
-          className="field-input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </FormField>
-      <FormField label="Telefone" error={fieldErrors.phone}>
-        <input
-          type="tel"
-          className="field-input"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-      </FormField>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      </div>
+
+      <div
+        className={
+          inSlideOver
+            ? 'flex justify-end gap-3 border-t border-[#DDE5EC] bg-[#F4F7FA] px-6 py-4'
+            : 'flex flex-wrap gap-3'
+        }
+      >
+        <Button variant="secondary" onClick={handleCancel}>
+          Cancelar
+        </Button>
         <Button type="submit" disabled={!canSubmit}>
           {submitting ? 'Salvando...' : 'Salvar'}
-        </Button>
-        <Button variant="secondary" onClick={onCancel}>
-          Cancelar
         </Button>
       </div>
     </form>

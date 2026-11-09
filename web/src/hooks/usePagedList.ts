@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import type { ListResponse, PageQuery } from '../api/types';
 import { PAGE_SIZE, clampPage, pageCount, toOffset } from '../pagination';
 import { useAsync, type AsyncState } from './useAsync';
@@ -8,11 +8,15 @@ export interface PagedListState<T> extends AsyncState<ListResponse<T>> {
   setPage: (page: number) => void;
 }
 
-/** Loads one page of a list endpoint. `fetchPage` must be stable (a module-level function). */
+/**
+ * Loads one page of a list endpoint. `fetchPage` must be stable (a module-level function).
+ * The caller owns `page` (so it can be persisted along with the search and filter).
+ */
 export function usePagedList<T>(
   fetchPage: (page: PageQuery) => Promise<ListResponse<T>>,
+  page: number,
+  setPage: (page: number) => void,
 ): PagedListState<T> {
-  const [page, setPage] = useState(1);
   const load = useCallback(
     () => fetchPage({ limit: PAGE_SIZE, offset: toOffset(page) }),
     [fetchPage, page],

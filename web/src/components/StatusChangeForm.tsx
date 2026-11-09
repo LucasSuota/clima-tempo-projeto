@@ -1,22 +1,46 @@
-import { useState, type FormEvent } from 'react';
+import type { FormEvent } from 'react';
 import { changeQuoteStatus } from '../api/quotes';
 import { QUOTE_STATUSES, type Quote, type QuoteStatus } from '../api/types';
 import { QUOTE_STATUS_LABELS } from '../format';
+import { DRAFT_KEYS, isStringRecord } from '../draft-storage';
+import { usePersistedState } from '../hooks/usePersistedState';
 import { useSubmit } from '../hooks/useSubmit';
 import { Button } from './Button';
 import { FormField } from './FormField';
 
-const KNOWN_FIELDS = ['status', 'sentAt'];
+const KNOWN_FIELDS = ['status', 'sentAt'] as const;
+const EMPTY_VALUES: StatusChangeFormValues = { status: '', sentAt: '' };
+
+interface StatusChangeFormValues {
+  status: QuoteStatus | '';
+  sentAt: string;
+}
+
+function isQuoteStatus(value: string): value is QuoteStatus {
+  return (QUOTE_STATUSES as readonly string[]).includes(value);
+}
+
+function parseValues(value: unknown): StatusChangeFormValues | null {
+  if (!isStringRecord(value, KNOWN_FIELDS)) return null;
+  const { status, sentAt } = value;
+  if (status === '') return { status: '', sentAt };
+  return isQuoteStatus(status) ? { status, sentAt } : null;
+}
 
 interface StatusChangeFormProps {
   quote: Quote;
   onChanged: () => void;
 }
 
-// Offers every status but the current one and lets the server refuse invalid transitions (§7).
 export function StatusChangeForm({ quote, onChanged }: StatusChangeFormProps) {
-  const [status, setStatus] = useState<QuoteStatus | ''>('');
-  const [sentAt, setSentAt] = useState('');
+  const [values, setValues, discard] = usePersistedState<StatusChangeFormValues>(
+    DRAFT_KEYS.statusChangeForm(quote.id),
+    EMPTY_VALUES,
+    parseValues,
+  );
+  const { sentAt } = values;
+  // A restored status may have become the current one (changed elsewhere meanwhile): not offered.
+  const status = values.status === quote.status ? '' : values.status;
   const { submitting, fieldErrors, message, run } = useSubmit(KNOWN_FIELDS);
 
   async function handleSubmit(event: FormEvent) {
@@ -29,46 +53,59 @@ export function StatusChangeForm({ quote, onChanged }: StatusChangeFormProps) {
       }),
     );
     if (!saved) return;
-    setStatus('');
-    setSentAt('');
+    discard();
     onChanged();
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-md bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-semibold">Mudar status</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-5 rounded-[8px] border border-[#DDE5EC] bg-white p-6"
+    >
+      <h2 className="text-[20px] leading-7 font-semibold text-[#0F1F2B]">Mudar status</h2>
       {message && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-red-800">
+        <p
+          role="alert"
+          className="rounded-[6px] border border-[#A12A2A] bg-[#FDECEC] p-3 text-sm font-medium text-[#A12A2A]"
+        >
           {message}
         </p>
       )}
       <FormField label="Novo status" required error={fieldErrors.status}>
-        <select
-          className="field-input"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as QuoteStatus | '')}
-        >
-          <option value="">Selecione…</option>
-          {QUOTE_STATUSES.filter((option) => option !== quote.status).map((option) => (
-            <option key={option} value={option}>
-              {QUOTE_STATUS_LABELS[option]}
-            </option>
-          ))}
-        </select>
+        {(field) => (
+          <select
+            {...field}
+            className="cf-field"
+            value={status}
+            onChange={(e) => setValues({ ...values, status: e.target.value as QuoteStatus | '' })}
+          >
+            <option value="">Selecione…</option>
+            {QUOTE_STATUSES.filter((option) => option !== quote.status).map((option) => (
+              <option key={option} value={option}>
+                {QUOTE_STATUS_LABELS[option]}
+              </option>
+            ))}
+          </select>
+        )}
       </FormField>
       {status === 'sent' && (
         <FormField label="Data de envio" error={fieldErrors.sentAt}>
-          <input
-            type="date"
-            className="field-input"
-            value={sentAt}
-            onChange={(e) => setSentAt(e.target.value)}
-          />
+          {(field) => (
+            <input
+              {...field}
+              type="date"
+              className="cf-field"
+              value={sentAt}
+              onChange={(e) => setValues({ ...values, sentAt: e.target.value })}
+            />
+          )}
         </FormField>
       )}
-      <Button type="submit" disabled={status === '' || submitting}>
-        {submitting ? 'Salvando...' : 'Mudar status'}
-      </Button>
+      <div className="flex">
+        <Button type="submit" disabled={status === '' || submitting}>
+          {submitting ? 'Salvando...' : 'Mudar status'}
+        </Button>
+      </div>
     </form>
   );
 }
