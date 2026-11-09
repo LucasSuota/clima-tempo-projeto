@@ -1,11 +1,120 @@
 @import 'tailwindcss';
 
-body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-cf-primary: #1b5fa6;
+  --color-cf-primary-hover: #144c88;
+  --color-cf-focus-soft: #bbd6f0;
+  --color-cf-focus-ring: #3b8ad6;
+  --color-cf-primary-50: #eaf2fa;
+
+  --color-cf-bg: #f4f7fa;
+  --color-cf-surface: #ffffff;
+  --color-cf-border: #dde5ec;
+  --color-cf-border-strong: #c3cfd9;
+  --color-cf-border-row: #e7edf2;
+  --color-cf-row-hover: #f4f8fb;
+
+  --color-cf-text: #0f1f2b;
+  --color-cf-text-2: #31424f;
+  --color-cf-text-3: #52646f;
+  --color-cf-text-4: #5f707b;
+
+  --color-cf-stale: #a34a06;
+  --color-cf-stale-bg: #fff0e0;
+  --color-cf-critical: #a12a2a;
+  --color-cf-critical-bg: #fdecec;
+  --color-cf-danger: #b42318;
+  --color-cf-danger-hover: #912016;
 }
 
-@layer components {
-  .field-input {
-    @apply min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:border-sky-600 focus:ring-2 focus:ring-sky-600/30 focus:outline-none;
+/* Touch-only primary input: no hover to expand the compressed sidebar, so it stays expanded. */
+@custom-variant no-hover (@media (hover: none));
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 24px;
+  color: #0f1f2b;
+  background-color: #f4f7fa;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Keyboard accessibility focus ring. In the base layer so .cf-field can replace it with its own halo. */
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible {
+    outline: 3px solid #3b8ad6;
+    outline-offset: 2px;
   }
+}
+
+/* Form inputs & search focus halo. In the components layer so utilities (py-2.5, h-auto)
+   can still override the defaults; unlayered rules would always win over them. */
+@layer components {
+  .cf-field {
+    height: 44px;
+    border: 1px solid #c3cfd9;
+    border-radius: 6px;
+    padding: 0 14px;
+    font-family: inherit;
+    font-size: 15px;
+    background: #ffffff;
+    color: #0f1f2b;
+    width: 100%;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .cf-field:focus-visible,
+  .cf-field:focus {
+    outline: none;
+    border-color: #1b5fa6;
+    box-shadow: 0 0 0 3px #bbd6f0;
+  }
+
+  .cf-field[aria-invalid='true'] {
+    border-color: #a12a2a;
+  }
+
+  .cf-field:disabled {
+    background: #f4f7fa;
+    border-color: #dde5ec;
+    color: #52646f;
+    cursor: not-allowed;
+  }
+}
+
+.cf-search:focus-within {
+  border-color: #1b5fa6 !important;
+  box-shadow: 0 0 0 3px #bbd6f0 !important;
+}
+
+.cf-search input {
+  outline: none;
+}
+
+.cf-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+input::placeholder {
+  color: #5f707b;
+}
+
+/* Search highlight match */
+.hit {
+  background-color: #ffe7a8;
+  color: #0f1f2b;
+  padding: 0 1px;
+  border-radius: 2px;
 }

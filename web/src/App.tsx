@@ -21,7 +21,10 @@ function Page({ route }: { route: Route }) {
         <EmptyState
           title="Página não encontrada"
           action={
-            <a href="#/orcamentos" className="text-sky-700 underline">
+            <a
+              href="#/orcamentos"
+              className="font-semibold text-[#144C88] underline hover:text-[#1B5FA6]"
+            >
               Ir para orçamentos
             </a>
           }
