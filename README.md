@@ -133,13 +133,13 @@ Resumos por pasta: [db/](db/README.md) · [server/](server/README.md) · [server
 |---|---|---|
 | 0 | Setup: regras, agentes, Docker Compose do banco | ✅ |
 | 1 | Esquema do banco e dados fictícios | ✅ |
-| 2 | API com testes | ⏳ fila e indicadores em PR |
+| 2 | API com testes | ✅ |
 | 3 | Levantamento de requisitos da parte livre | ✅ |
-| 4 | Interface web | ⏳ em PR |
-| 5 | Tudo no Docker Compose | ⏳ em PR |
-| 6 | Documentação final | ⏳ conclui com o merge deste PR |
+| 4 | Interface web | ✅ |
+| 5 | Tudo no Docker Compose | ✅ |
+| 6 | Documentação final | ✅ |
 
-Este README descreve o projeto com todos os PRs integrados. Enquanto os PRs abertos não entram na `main` (`GET /api/quotes/stale` e `GET /api/indicators` nos PRs #33 e #34, e as telas e o Docker nos PRs #35 a #38), o painel inicial mostra erro de carregamento nas duas seções que dependem desses endpoints. As etapas 2, 4 e 5 viram ✅ depois do merge, e a 6 junto com o PR deste README; o mesmo quadro está no [AGENTS.md §1](AGENTS.md).
+Todas as etapas estão concluídas e integradas na `main`. O mesmo quadro está no [AGENTS.md §1](AGENTS.md).
 
 ## Como o desenvolvimento é organizado
 
@@ -224,6 +224,11 @@ Onde a IA errou: o primeiro esquema do banco gerado por IA exigia contato do cli
 
 - **Transições de status mais claras:** o server passaria a devolver as transições permitidas de cada orçamento (`allowedTransitions`), para o front oferecer só as válidas em vez de listar todos os status e depender do 422. As mensagens de transição inválida também deveriam sair em português, com o nome do status exibido na tela (hoje o erro cita `sent`, `won` etc.).
 - **Acessibilidade dos formulários:** levar o foco ao primeiro campo com erro e ligar as mensagens aos campos com `aria-describedby`/`aria-invalid`.
-- **Autenticação:** só se o sistema deixar de ser de uso interno; exigiria perfis, sessão e rever o papel de "responsável".
 - **Imagens Docker reproduzíveis:** fixar o digest das imagens (`postgres:16`, `node:24-alpine`, `nginxinc/nginx-unprivileged`) em vez de só a tag.
 - **Deploy:** hoje o Compose serve o ambiente local. Para produção faltam HTTPS, segredos fora do `.env.example`, backup do volume do banco e migrações no lugar dos scripts de `db/init/`.
+
+### Se eu tivesse mais uma semana de desenvolvimento
+
+- **Reforçar os testes:** ampliar a cobertura além do mínimo estritamente necessário, com mais casos de borda no domínio, mais cenários de erro nas rotas e testes dos fluxos principais do front.
+- **Sistema de autenticação:** login e sessão, com perfis e permissões (RBAC), revendo o papel de "responsável" (hoje só um cadastro, por ser de uso interno).
+- **Automação de mensagens:** avaliar a viabilidade de enviar lembretes e mensagens de follow-up (e-mail ou WhatsApp) a partir da fila "quem contatar hoje", o que exigiria provedor, credenciais e um agendador.
