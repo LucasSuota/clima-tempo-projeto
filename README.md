@@ -213,11 +213,6 @@ O desenvolvimento usou assistentes de IA, organizados como agentes definidos em 
 
 Quem decide é o autor. As decisões de escopo (o que entra, o que fica de fora, o que é p0, p1 ou p2) foram dele, e ele aprova issues, planos, PRs e merges nos pontos de parada definidos em [agents/orchestrator.md](agents/orchestrator.md). A regra do projeto (AGENTS.md §10) é que todo código entregue precisa ser entendido e explicável pelo autor, e que, em dúvida de escopo ou de regra, o agente pergunta em vez de adivinhar.
 
-Dois registros para ser transparente:
-
-- **Aprovação delegada na etapa final.** Nas últimas etapas (Docker Compose e este README), parte da aprovação dos planos foi delegada pelo autor às recomendações dos próprios agentes. As decisões de escopo e os merges continuaram com o autor.
-- **Sem marcação nos commits.** Por regra do projeto (AGENTS.md §13), commits, branches e PRs não levam marca de IA. Por isso o uso fica registrado aqui, e não no histórico do git.
-
 Onde a IA errou: o primeiro esquema do banco gerado por IA exigia contato do cliente e usava nomes de campo inconsistentes (`description` numa tabela e `note` na outra); a correção está registrada no [DECISIONS.md](DECISIONS.md). O histórico também traz commits `fix` que corrigiram falhas encontradas depois da primeira versão do código, por exemplo o campo de valor que aceitava separador de milhar ambíguo e o cabeçalho `Vary: Origin` do CORS.
 
 ## Próximos passos
