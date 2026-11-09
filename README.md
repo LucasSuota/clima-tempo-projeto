@@ -213,17 +213,17 @@ O desenvolvimento usou assistentes de IA, organizados como agentes definidos em 
 
 Quem decide é o autor. As decisões de escopo (o que entra, o que fica de fora, o que é p0, p1 ou p2) foram dele, e ele aprova issues, planos, PRs e merges nos pontos de parada definidos em [agents/orchestrator.md](agents/orchestrator.md). A regra do projeto (AGENTS.md §10) é que todo código entregue precisa ser entendido e explicável pelo autor, e que, em dúvida de escopo ou de regra, o agente pergunta em vez de adivinhar.
 
-Onde a IA errou: o primeiro esquema do banco gerado por IA exigia contato do cliente e usava nomes de campo inconsistentes (`description` numa tabela e `note` na outra); a correção está registrada no [DECISIONS.md](DECISIONS.md). O histórico também traz commits `fix` que corrigiram falhas encontradas depois da primeira versão do código, por exemplo o campo de valor que aceitava separador de milhar ambíguo e o cabeçalho `Vary: Origin` do CORS.
+Onde a IA errou: o primeiro schema do banco gerado por IA exigia contato do cliente e usava nomes de campo inconsistentes (`description` numa tabela e `note` na outra); a correção está registrada no [DECISIONS.md](DECISIONS.md). O histórico também traz commits `fix` que corrigiram falhas encontradas depois da primeira versão do código, por exemplo o campo de valor que aceitava separador de milhar ambíguo e o cabeçalho `Vary: Origin` do CORS. A maior dificuldade vista em um código novo com a implementação de fluxos agênticos é a indecisão e a falta de posicionamento da pessoa responsável pelo código: Hoje se eu resolver iniciar o desenvolvimento em x stack, e pedir recomendações, a IA recomenda itens que funcionam, mas conforme o avanço do projeto caso haja necessidades específicas, ela sempre recomendará mais e mais, e se quem está codando não souber onde quer chegar, acontece um loop de alucinações.
 
 ## Próximos passos
 
 - **Transições de status mais claras:** o server passaria a devolver as transições permitidas de cada orçamento (`allowedTransitions`), para o front oferecer só as válidas em vez de listar todos os status e depender do 422. As mensagens de transição inválida também deveriam sair em português, com o nome do status exibido na tela (hoje o erro cita `sent`, `won` etc.).
 - **Acessibilidade dos formulários:** levar o foco ao primeiro campo com erro e ligar as mensagens aos campos com `aria-describedby`/`aria-invalid`.
 - **Imagens Docker reproduzíveis:** fixar o digest das imagens (`postgres:16`, `node:24-alpine`, `nginxinc/nginx-unprivileged`) em vez de só a tag.
-- **Deploy:** hoje o Compose serve o ambiente local. Para produção faltam HTTPS, segredos fora do `.env.example`, backup do volume do banco e migrações no lugar dos scripts de `db/init/`.
 
 ### Se eu tivesse mais uma semana de desenvolvimento
 
 - **Reforçar os testes:** ampliar a cobertura além do mínimo estritamente necessário, com mais casos de borda no domínio, mais cenários de erro nas rotas e testes dos fluxos principais do front.
 - **Sistema de autenticação:** login e sessão, com perfis e permissões (RBAC), revendo o papel de "responsável" (hoje só um cadastro, por ser de uso interno).
 - **Automação de mensagens:** avaliar a viabilidade de enviar lembretes e mensagens de follow-up (e-mail ou WhatsApp) a partir da fila "quem contatar hoje", o que exigiria provedor, credenciais e um agendador.
+- **Definição de visual:** O padrão de design escolhido hoje é simples e cumpre o propósito, contudo, o desenvolvimento de novos componentes e uma leitura mais moderna da aplicação seria um próximo passo.
